@@ -15,9 +15,10 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
+// model imports
 let Player = require("./models/player");
 
-
+// initialize db
 mongoose
   .connect("mongodb://localhost/testtest", {
     useNewUrlParser: true,
@@ -27,25 +28,26 @@ mongoose
   })
   .then(() => console.log("DB connected"))
   .catch(err => console.log("DB CONNECTION ERROR: ", err));
-  
-  Player.create({ discordID: "Kalasky#6956" })
-  .then(function(dbPlayer) {
-    // If saved successfully, print the new Player document to the console
-    console.log(dbPlayer);
-  })
-  .catch(function(err) {
-    // If an error occurs, print it to the console
-    console.log(err.message);
-  });
+
+  // Player.create({ discordID: "Kalasky#6956", battlenetID: "Lierrmm#2364" })
+  // .then(function(dbPlayer) {
+  //   // If saved successfully, print the new Player document to the console
+  //   console.log(dbPlayer);
+  // })
+  // .catch(function(err) {
+  //   // If an error occurs, print it to the console
+  //   console.log(err.message);
+  // });
+
 
 // Warzone Data
 API.MWwz("Lierrmm#2364")
   .then(data => {
-    console.log(data); // see output
+    // console.log(data); // see output
     console.log(data.br.kdRatio);
-    if (data.br.kdRatio > 0.5) {
-      console.log("yay");
-    }
+    // if (data.br.kdRatio > 0.5) {
+    //   console.log("yay");
+    // }
   })
   .catch(err => {
     console.log(err);
@@ -77,6 +79,8 @@ client.on("message", message => {
       `You didn't provide any arguments, ${message.author}!`
     );
   }
+
+  
 
   if (!cooldowns.has(command.name)) {
     cooldowns.set(command.name, new Discord.Collection());
