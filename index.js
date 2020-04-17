@@ -1,7 +1,7 @@
 const fs = require("fs");
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
-const API = require("call-of-duty-api")({ platform: "battle" });
+const API = require("call-of-duty-api")();
 const { prefix, token } = require("./config.json");
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -28,46 +28,6 @@ mongoose
   })
   .then(() => console.log("DB connected"))
   .catch(err => console.log("DB CONNECTION ERROR: ", err));
-
-  // let battleNetIds = [
-  //   'Lierrmm#2364',
-  //   'FliPSteR#11852',
-  //   'Death#3908564',
-  // ];
-  
-  let obj = {};
-  Player.find({}, function (err, docs) {
-    docs.map(x => {
-      API.MWwz(x.battlenetID)
-        .then(data => {
-          
-          console.log(data) // Display API data
-          // Display each record
-          console.log([
-            x.discordID,
-            x.battlenetID,
-            obj[x.battlenetID] =  data.br.kdRatio
-          ])
-          
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    });
- });
-
-// Warzone Data
-// API.MWwz("Lierrmm#2364")
-//   .then(data => {
-//     // console.log(data); // see output
-//     console.log(data.br.kdRatio);
-//     // if (data.br.kdRatio > 0.5) {
-//     //   console.log("yay");
-//     // }
-//   })
-//   .catch(err => {
-//     console.log(err);
-//   });
 
 client.once("ready", () => {
   console.log("Ready!");
