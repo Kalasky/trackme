@@ -1,7 +1,7 @@
 const fs = require("fs");
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
-const API = require("call-of-duty-api")({ platform: "battle" });
+const API = require("call-of-duty-api")();
 const { prefix, token } = require("./config.json");
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -28,30 +28,6 @@ mongoose
   })
   .then(() => console.log("DB connected"))
   .catch(err => console.log("DB CONNECTION ERROR: ", err));
-
-  // Player.create({ discordID: "Kalasky#6956", battlenetID: "Lierrmm#2364" })
-  // .then(function(dbPlayer) {
-  //   // If saved successfully, print the new Player document to the console
-  //   console.log(dbPlayer);
-  // })
-  // .catch(function(err) {
-  //   // If an error occurs, print it to the console
-  //   console.log(err.message);
-  // });
-
-
-// Warzone Data
-API.MWwz("Lierrmm#2364")
-  .then(data => {
-    // console.log(data); // see output
-    console.log(data.br.kdRatio);
-    // if (data.br.kdRatio > 0.5) {
-    //   console.log("yay");
-    // }
-  })
-  .catch(err => {
-    console.log(err);
-  });
 
 client.once("ready", () => {
   console.log("Ready!");
