@@ -10,7 +10,7 @@ module.exports = {
     const command =
       message.client.commands.get(commandName) ||
       message.client.commands.find(
-        cmd => cmd.aliases && cmd.aliases.includes(commandName)
+        (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
       );
 
     if (!command)
@@ -30,5 +30,5 @@ module.exports = {
       );
     }
     message.channel.send(`Command \`${command.name}\` was reloaded!`);
-  }
+  },
 };

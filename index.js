@@ -8,7 +8,7 @@ client.commands = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 const commandFiles = fs
   .readdirSync("./commands")
-  .filter(file => file.endsWith(".js"));
+  .filter((file) => file.endsWith(".js"));
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
@@ -24,16 +24,16 @@ mongoose
     useNewUrlParser: true,
     useFindAndModify: false,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
   })
   .then(() => console.log("DB connected"))
-  .catch(err => console.log("DB CONNECTION ERROR: ", err));
+  .catch((err) => console.log("DB CONNECTION ERROR: ", err));
 
 client.once("ready", () => {
   console.log("Ready!");
 });
 
-client.on("message", message => {
+client.on("message", (message) => {
   // If the message either doesn't start with the prefix or was sent by a bot, exit early.
   if (!message.content.startsWith(prefix) || message.author.bot) return;
   // Create an args variable that slices off the prefix entirely and then splits it into an array by spaces.
@@ -55,8 +55,6 @@ client.on("message", message => {
       `You didn't provide any arguments, ${message.author}!`
     );
   }
-
-  
 
   if (!cooldowns.has(command.name)) {
     cooldowns.set(command.name, new Discord.Collection());
