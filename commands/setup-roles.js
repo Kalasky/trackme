@@ -6,20 +6,40 @@ module.exports = {
   execute(message, args) {
     message.channel.send("Roles setup completed.");
 
-    let objRoles = {
-      noob: {
-        role_name: "Noob",
+    let objRoles = [
+      {
+        role_name: "PLEB",
+        role_color: "BROWN",
+      },
+      {
+        role_name: "NOOB",
         role_color: "BLUE",
       },
-      one_kd: {
-        role_name: "1kd",
-        role_color: "RED",
-      },
-      two_kd: {
-        role_name: "2kd",
+      {
+        role_name: "1KD",
         role_color: "GREEN",
       },
-    };
+      {
+        role_name: "2KD",
+        role_color: "ORANGE",
+      },
+      {
+        role_name: "3KD",
+        role_color: "RED",
+      },
+      {
+        role_name: "4KD",
+        role_color: "PURPLE",
+      },
+      {
+        role_name: "5KD",
+        role_color: "YELLOW",
+      },
+      {
+        role_name: "6KD",
+        role_color: "PINK",
+      },
+    ];
 
     let roles = Object.keys(objRoles);
 
@@ -35,10 +55,7 @@ module.exports = {
         .then(console.log)
         .catch(console.error);
     });
-
-    roles.find({});
   },
 };
 
 // check if the user inputed battlenet ID is valid?
-// Create a new role with data and a reason
