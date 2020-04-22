@@ -11,6 +11,10 @@ const playerSchema = new mongoose.Schema(
       type: String,
       trim: true
       //   required: true
+    },
+    currentRole: {
+      type: String,
+      trim: true
     }
   },
   { timestamps: true }
