@@ -27,19 +27,18 @@ module.exports = {
                 }
 
                 message.guild.members.fetch(x.discordID).then((member_data) => {
-                  if (data.br.kills <= objRoles.objRoles[0]["role_reqKills"]) {
+                  if (data.br.kills <= objRoles[0]["role_reqKills"]) {
                     member_data.roles.add(
-                      getRole(objRoles.objRoles[0]["role_name"], message)
+                      getRole(objRoles[0]["role_name"], message)
                     );
                   } else {
-                    for (let i = 1; i < objRoles.objRoles.length; i++) {
+                    for (let i = 1; i < objRoles.length; i++) {
                       if (
-                        data.br.kdRatio >=
-                          objRoles.objRoles[i]["role_min_kd"] &&
-                        data.br.kdRatio <= objRoles.objRoles[i]["role_max_kd"]
+                        data.br.kdRatio >= objRoles[i]["role_min_kd"] &&
+                        data.br.kdRatio <= objRoles[i]["role_max_kd"]
                       ) {
                         member_data.roles.add(
-                          getRole(objRoles.objRoles[i]["role_name"], message)
+                          getRole(objRoles[i]["role_name"], message)
                         );
                         break;
                       }

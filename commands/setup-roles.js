@@ -8,15 +8,15 @@ module.exports = {
   execute(message, args) {
     message.channel.send("Roles setup completed.");
 
-    let roles = Object.keys(objRoles.objRoles);
+    let roles = Object.keys(objRoles);
 
     roles.map((x) => {
-      console.log(objRoles.objRoles[x]);
+      console.log(objRoles[x]);
       message.guild.roles
         .create({
           data: {
-            name: objRoles.objRoles[x].role_name,
-            color: objRoles.objRoles[x].role_color,
+            name: objRoles[x].role_name,
+            color: objRoles[x].role_color,
           },
         })
         .then(console.log)
