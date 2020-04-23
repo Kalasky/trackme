@@ -1,3 +1,4 @@
+require('dotenv').config()
 const fs = require("fs");
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
@@ -88,4 +89,4 @@ client.on("message", (message) => {
   }
 });
 
-client.login(token);
+client.login(process.env.BOT_TOKEN);

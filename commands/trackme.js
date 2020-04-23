@@ -6,19 +6,20 @@ module.exports = {
   args: true,
   execute(message, args) {
     message.channel.send(
-      `Arguments: ${args[0]}\nYour Battlenet ID is now being tracked.`
+      `Your platformID ${args[0]}\nis now being tracked from platform ${args[1]}`
     );
 
     Player.create({
       discordID: `${message.author.id}`,
-      battlenetID: `${args[0]}`,
+      platformID: `${args[0]}`,
+      platform: `${args[1]}`,
+      currentRole: "TBD",
     }) // storing users discord ID and battlenet ID in db
       .then(function (dbPlayer) {
         // If saved successfully, print the new Player document to the console
         console.log(dbPlayer);
       })
       .catch(function (err) {
-        // If an error occurs, print it to the console
         console.log(err.message);
       });
   },
