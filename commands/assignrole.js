@@ -41,12 +41,12 @@ module.exports = {
                       ) {
                         let query = {
                           currentRole: {
-                            $ne: `${objRoles[i]["role_name"]}`,
+                            $eq: "TBD",
                           },
                         };
 
-                        Player.find(
-                          { query },
+                        Player.updateOne(
+                          query,
                           {
                             $set: {
                               currentRole: `${objRoles[i]["role_name"]}`,
@@ -57,10 +57,9 @@ module.exports = {
                               console.log(err);
                             }
                             // doc.save(callback);
-                            console.log("updated");
-                            console.log(docs);
                           }
                         );
+
                         member_data.roles.add(
                           getRole(objRoles[i]["role_name"], message)
                         );
