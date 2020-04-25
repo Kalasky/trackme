@@ -91,6 +91,10 @@ module.exports = {
                       return false;
                     }
 
+                    // Remove role
+                    memberData.roles.remove(
+                      getRole(player.currentRole)
+                    );
                     // Update player record on db
                     savePlayerRoleRecord({
                       _id: {
@@ -98,10 +102,6 @@ module.exports = {
                       }
                     },
                     objRoles[i]["role_name"]);
-                    // Remove role
-                    memberData.roles.remove(
-                      getRole(player.currentRole)
-                    );
                     // Apply new role
                     memberData.roles.add(
                       getRole(objRoles[i]["role_name"])
