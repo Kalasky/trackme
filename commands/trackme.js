@@ -5,14 +5,30 @@ module.exports = {
   description: "Track users battlenet ID",
   args: true,
   execute(message, args) {
+    
+    let pattern = /".*?"/g;
+    let output = pattern.exec(message.content);
+    let platformID;
+    let count;
+    let platform;
+ 
+    if(output == null) {
+      platformID = args[0];
+      platform = args[1];
+    } else {
+      platformID = output[0];
+      count = output[0].split(" ").length;
+      platform = args[count];
+    }
+
     message.channel.send(
-      `Your platformID ${args[0]}\nis now being tracked from platform ${args[1]}`
+      `Your platformID ${platformID}\nis now being tracked from platform ${platform}`
     );
 
     Player.create({
       discordID: `${message.author.id}`,
-      platformID: `${args[0]}`,
-      platform: `${args[1]}`,
+      platformID: platformID,
+      platform: platform,
       currentRole: "TBD",
     }) // storing users discord ID and battlenet ID in db
       .then(function (dbPlayer) {
