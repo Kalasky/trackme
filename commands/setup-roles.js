@@ -8,19 +8,29 @@ module.exports = {
   execute(message, args) {
     message.channel.send("Roles setup completed.");
 
-    let roles = Object.keys(objRoles);
+    let getRole = (roleString) => {
+      // Find discord role object
+      let role = message.guild.roles.cache.find((data) => {
+        return data.name == roleString;
+      });
+      return role;
+    };
 
-    roles.map((x) => {
-      console.log(objRoles[x]);
-      message.guild.roles
-        .create({
-          data: {
-            name: objRoles[x].role_name,
-            color: objRoles[x].role_color,
-          },
-        })
-        .then(console.log)
-        .catch(console.error);
-    });
+    for (let i = 0; i < objRoles.length; i++) {
+      if (!getRole(objRoles[i]["role_name"])) {
+        console.log(objRoles[i]["role_name"], "does not exist");
+        message.guild.roles
+          .create({
+            data: {
+              name: objRoles[i].role_name,
+              color: objRoles[i].role_color,
+            },
+          })
+          .then(console.log)
+          .catch(console.error);
+      } else {
+        console.log(objRoles[i]["role_name"], "already exists");
+      }
+    }
   },
 };

@@ -1,3 +1,5 @@
+var objRoles = require("../roles.json");
+
 module.exports = {
   name: "ping",
   cooldown: 5,
