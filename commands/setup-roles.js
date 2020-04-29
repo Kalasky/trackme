@@ -16,12 +16,16 @@ module.exports = {
       return role;
     };
 
-    let str = objRoles
-      .filter(function (elem) {
-        console.log(elem.role_name);
-        return elem.role_name != "1KD";
-      })
-      .join(", ");
+    let roleList = objRoles
+      .map(function (elem) {
+        return elem.role_name;
+      });
+      // .filter(function(role_name) {
+      //   return role_name != "1KD";
+      // })
+      // .join(", ");
+
+      let roleCreated = []; //this is the container for the roles that is created, meaning its not on discord
 
     for (let i = 0; i < objRoles.length; i++) {
       if (!getRole(objRoles[i]["role_name"])) {
@@ -35,13 +39,19 @@ module.exports = {
           })
           .then(console.log)
           .catch(console.error);
-      } else {
-        // console.log(str, "already exists");
-        message.channel.send(
-          `Role \`${str}\` already exists and was not created to prevent duplication.`
-        );
-        break;
+          roleCreated.push(objRoles[i].role_name);
       }
     }
+
+    let difference = roleList.filter(x => roleCreated.indexOf(x) === -1);
+      if(roleCreated.length > 0) {
+        message.channel.send(
+          `Role \`${difference.toString()}\` already exists and was not created to prevent duplication.`
+        );
+      } else {
+        message.channel.send(
+          'BITCH, all roles has been created. dont fcking try to create anymore'
+        );
+      }
   },
 };
