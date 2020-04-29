@@ -59,6 +59,7 @@ module.exports = {
               console.log(
                 `Discord ID: ${player.discordID}     Platform ID: ${player.platformID}     Platform: ${player.platform}      KD: ${warzoneData.br.kdRatio}    Kills: ${warzoneData.br.kills}`
               );
+
               // Access discord member data
               message.guild.members
                 .fetch(player.discordID)
@@ -68,6 +69,7 @@ module.exports = {
                     memberData.roles.add(
                       getRole(objRoles[0]["role_name"], message)
                     );
+
                     // Update player db record
                     savePlayerRoleRecord(
                       {

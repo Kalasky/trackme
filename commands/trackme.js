@@ -20,22 +20,34 @@ module.exports = {
       platform = args[count];
     }
 
-    message.channel.send(
-      `Your platformID ${platformID}\nis now being tracked from platform ${platform}`
-    );
+    // message.channel.send(
+    //   `Your platformID ${platformID}\nis now being tracked from platform ${platform}`
+    // );
 
     Player.create({
       discordID: `${message.author.id}`,
       platformID: platformID,
       platform: platform,
       currentRole: "TBD",
-    }) // storing users discord ID and battlenet ID in db
+    }) // storing users discord ID, platform ID, and platform in db
       .then(function (dbPlayer) {
         // If saved successfully, print the new Player document to the console
         console.log(dbPlayer);
+        message.channel.send(
+          `Your platformID \`${platformID}\` is now being tracked from platform \`${platform}\``
+        );
       })
       .catch(function (err) {
-        console.log(err.message);
+        if (err) {
+          if (err.name === "MongoError" && err.code === 11000) {
+            // Duplicate username
+            // return message.channel.send("User already exists!");
+            return message.channel.send(err.message);
+          }
+
+          // Some other error
+          return message.channel.send(err.message);
+        }
       });
   },
 };

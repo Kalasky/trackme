@@ -16,9 +16,16 @@ module.exports = {
       return role;
     };
 
+    let str = objRoles
+      .filter(function (elem) {
+        console.log(elem.role_name);
+        return elem.role_name != "1KD";
+      })
+      .join(", ");
+
     for (let i = 0; i < objRoles.length; i++) {
       if (!getRole(objRoles[i]["role_name"])) {
-        console.log(objRoles[i]["role_name"], "does not exist");
+        console.log(objRoles[i]["role_name"], "has just been created!");
         message.guild.roles
           .create({
             data: {
@@ -29,7 +36,11 @@ module.exports = {
           .then(console.log)
           .catch(console.error);
       } else {
-        console.log(objRoles[i]["role_name"], "already exists");
+        // console.log(str, "already exists");
+        message.channel.send(
+          `Role \`${str}\` already exists and was not created to prevent duplication.`
+        );
+        break;
       }
     }
   },
