@@ -64,6 +64,7 @@ module.exports = {
               message.guild.members
                 .fetch(player.discordID)
                 .then((memberData) => {
+                  console.log(memberData._roles);
                   if (warzoneData.br.kills <= objRoles[0]["role_reqKills"]) {
                     // Add role
                     memberData.roles.add(
@@ -91,7 +92,7 @@ module.exports = {
                         warzoneData.br.kdRatio <= objRoles[i]["role_max_kd"]
                       ) {
                         // If current role and new identified role is same, break loop by returning false
-                        if (player.currentRole == objRoles[i]["role_name"]) {
+                        if (player.currentRole == objRoles[i]["role_name"] && player.currentRole == memberData._roles) {
                           return false;
                         }
 
