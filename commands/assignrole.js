@@ -55,9 +55,11 @@ module.exports = {
           // FIX: update platforms because its not using API.platforms
           API.MWwz(player.platformID, API.platforms[player.platform])
             .then((warzoneData) => {
+              let kd = warzoneData.br.kdRatio.toFixed(6).slice(0, -4);
+              let kills = warzoneData.br.kills;
               // Display player record in console
               console.log(
-                `Discord ID: ${player.discordID}     Platform ID: ${player.platformID}     Platform: ${player.platform}      KD: ${warzoneData.br.kdRatio}    Kills: ${warzoneData.br.kills}`
+                `Discord ID: ${player.discordID}     Platform ID: ${player.platformID}     Platform: ${player.platform}      KD: ${kd}    Kills: ${kills}`
               );
 
               // Access discord member data
@@ -65,7 +67,7 @@ module.exports = {
                 .fetch(player.discordID)
                 .then((memberData) => {
                   // console.log(memberData._roles);
-                  if (warzoneData.br.kills <= objRoles[0]["role_reqKills"]) {
+                  if (kills <= objRoles[0]["role_reqKills"]) {
                     // Add role
                     memberData.roles.add(
                       getRole(objRoles[0]["role_name"], message)
@@ -88,8 +90,8 @@ module.exports = {
                     for (let i = 1; i < objRoles.length; i++) {
                       // Identify current equivalent role of kd ratio
                       if (
-                        warzoneData.br.kdRatio >= objRoles[i]["role_min_kd"] &&
-                        warzoneData.br.kdRatio <= objRoles[i]["role_max_kd"]
+                        kd >= objRoles[i]["role_min_kd"] &&
+                        kd <= objRoles[i]["role_max_kd"]
                       ) {
                         // If current role and new identified role is same, break loop by returning false
                         if (
