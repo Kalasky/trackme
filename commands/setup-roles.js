@@ -6,7 +6,10 @@ module.exports = {
   cooldown: 5,
   description: "Creates setup roles in server.",
   execute(message, args) {
-    message.channel.send("Roles setup completed.");
+    if (!message.member.hasPermission("ADMINISTRATOR")) {
+      message.channel.send("You must be an admin to execute this command.");
+      return false;
+    }
 
     let getRole = (roleString) => {
       // Find discord role object
@@ -16,16 +19,15 @@ module.exports = {
       return role;
     };
 
-    let roleList = objRoles
-      .map(function (elem) {
-        return elem.role_name;
-      });
-      // .filter(function(role_name) {
-      //   return role_name != "1KD";
-      // })
-      // .join(", ");
+    let roleList = objRoles.map(function (elem) {
+      return elem.role_name;
+    });
+    // .filter(function(role_name) {
+    //   return role_name != "1KD";
+    // })
+    // .join(", ");
 
-      let roleCreated = []; //this is the container for the roles that is created, meaning its not on discord
+    let roleCreated = []; //this is the container for the roles that is created, meaning its not on discord
 
     for (let i = 0; i < objRoles.length; i++) {
       if (!getRole(objRoles[i]["role_name"])) {
@@ -39,19 +41,21 @@ module.exports = {
           })
           .then(console.log)
           .catch(console.error);
-          roleCreated.push(objRoles[i].role_name);
+        roleCreated.push(objRoles[i].role_name);
       }
     }
 
-    let difference = roleList.filter(x => roleCreated.indexOf(x) === -1);
-      if(roleCreated.length > 0) {
-        message.channel.send(
-          `Role \`${difference.toString()}\` already exists and was not created to prevent duplication.`
-        );
-      } else {
-        message.channel.send(
-          'BITCH, all roles has been created. dont fcking try to create anymore'
-        );
-      }
+    let difference = roleList.filter((x) => roleCreated.indexOf(x) === -1);
+    if (difference.length == 0) {
+      message.channel.send("All 8 roles have been created.");
+    } else if (roleCreated.length > 0) {
+      message.channel.send(
+        `Role \`${difference.toString()}\` already exists and was not created to prevent duplication.`
+      );
+    } else {
+      message.channel.send(
+        "BITCH, all roles has been created. dont fcking try to create anymore"
+      );
+    }
   },
 };

@@ -8,6 +8,10 @@ module.exports = {
   cooldown: 5,
   description: "Add role for Warzone data",
   execute(message, args) {
+    if (!message.member.hasPermission("ADMINISTRATOR")) {
+      message.channel.send("You must be an admin to execute this command.");
+      return false;
+    }
     API.login(process.env.COD_EMAIL, process.env.COD_PASSWORD).then((data) => {
       // Common functions
       //--------------------------------------------//
