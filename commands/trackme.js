@@ -15,7 +15,7 @@ module.exports = {
       platformID = args[0];
       platform = args[1];
     } else {
-      platformID = output[0];
+      platformID = output[0].slice(1, -1);
       count = output[0].split(" ").length;
       platform = args[count];
     }
