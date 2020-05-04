@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config();
 const fs = require("fs");
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
@@ -19,9 +19,31 @@ for (const file of commandFiles) {
 // model imports
 let Player = require("./models/player");
 
+// if (process.env.MONGODB_URI) {
+//   mongoose
+//     .connect(process.env.MONGODB_URI, {
+//       useNewUrlParser: true,
+//       useFindAndModify: false,
+//       useUnifiedTopology: true,
+//       useCreateIndex: true,
+//     })
+//     .then(() => console.log("prod DB connected"))
+//     .catch((err) => console.log("prod DB CONNECTION ERROR: ", err));
+// } else {
+//   mongoose
+//     .connect("mongodb://localhost/warzone-data", {
+//       useNewUrlParser: true,
+//       useFindAndModify: false,
+//       useUnifiedTopology: true,
+//       useCreateIndex: true,
+//     })
+//     .then(() => console.log("DB connected"))
+//     .catch((err) => console.log("DB CONNECTION ERROR: ", err));
+// }
+
 // initialize db
 mongoose
-  .connect("mongodb://localhost/testtest", {
+  .connect("mongodb://localhost/warzone-data", {
     useNewUrlParser: true,
     useFindAndModify: false,
     useUnifiedTopology: true,
@@ -29,10 +51,6 @@ mongoose
   })
   .then(() => console.log("DB connected"))
   .catch((err) => console.log("DB CONNECTION ERROR: ", err));
-
-client.once("ready", () => {
-  console.log("Ready!");
-});
 
 client.on("message", (message) => {
   // If the message either doesn't start with the prefix or was sent by a bot, exit early.
