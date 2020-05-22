@@ -16,9 +16,6 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-// model imports
-let Player = require("./models/player");
-
 // if (process.env.MONGODB_URI) {
 //   mongoose
 //     .connect(process.env.MONGODB_URI, {
@@ -41,16 +38,18 @@ let Player = require("./models/player");
 //     .catch((err) => console.log("DB CONNECTION ERROR: ", err));
 // }
 
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/warzone-data');
+
 // initialize db
-mongoose
-  .connect("mongodb://localhost/warzone-data", {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-  })
-  .then(() => console.log("DB connected"))
-  .catch((err) => console.log("DB CONNECTION ERROR: ", err));
+// mongoose
+//   .connect("mongodb://localhost/warzone-data", {
+//     useNewUrlParser: true,
+//     useFindAndModify: false,
+//     useUnifiedTopology: true,
+//     useCreateIndex: true,
+//   })
+//   .then(() => console.log("DB connected"))
+//   .catch((err) => console.log("DB CONNECTION ERROR: ", err));
 
 client.on("message", (message) => {
   // If the message either doesn't start with the prefix or was sent by a bot, exit early.
