@@ -38,7 +38,7 @@ for (const file of commandFiles) {
 //     .catch((err) => console.log("DB CONNECTION ERROR: ", err));
 // }
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/warzone-data');
+// mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/warzone-data');
 
 // initialize db
 // mongoose
@@ -50,6 +50,16 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/warzone-data');
 //   })
 //   .then(() => console.log("DB connected"))
 //   .catch((err) => console.log("DB CONNECTION ERROR: ", err));
+
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
+  .then(() => console.log("DB connected"))
+  .catch((err) => console.log("DB CONNECTION ERROR: ", err));
 
 client.on("message", (message) => {
   // If the message either doesn't start with the prefix or was sent by a bot, exit early.
