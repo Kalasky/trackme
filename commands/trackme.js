@@ -2,7 +2,9 @@ let Player = require("../models/player");
 
 module.exports = {
   name: "trackme",
-  description: "Track users battlenet ID",
+  description: "Track users battlenet ID per platform",
+  syntax: "!trackme <battlenet ID> <platform>",
+  include: true,
   args: true,
   execute(message, args) {
     let pattern = /".*?"/g;

@@ -6,7 +6,9 @@ const API = require("call-of-duty-api")();
 module.exports = {
   name: "assignrole",
   cooldown: 5,
-  description: "Add role for Warzone data",
+  description: "Assign role for Warzone data",
+  syntax: "!assignrole",
+  include: true,
   execute(message, args) {
     if (!message.member.hasPermission("ADMINISTRATOR")) {
       message.channel.send("You must be an admin to execute this command.");
