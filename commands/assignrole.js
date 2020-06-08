@@ -2,6 +2,8 @@ require("dotenv").config();
 let Player = require("../models/player");
 var objRoles = require("../roles.json");
 const API = require("call-of-duty-api")();
+var cron = require('node-cron');
+
 
 module.exports = {
   name: "assignrole",
@@ -69,9 +71,11 @@ module.exports = {
               );
 
               // Access discord member data
+              cron.schedule('0 */8 * * *', () => {
               message.guild.members
                 .fetch(player.discordID)
                 .then((memberData) => {
+                  console.log('fetch');
                   // console.log(memberData._roles);
                   if (kills <= objRoles[0]["role_reqKills"]) {
                     // Add role
@@ -125,6 +129,7 @@ module.exports = {
                     }
                   }
                 });
+              });
             })
             .then((err) => {
               // Add for display error message on API
