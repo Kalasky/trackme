@@ -6,8 +6,8 @@ const API = require("call-of-duty-api")();
 module.exports = {
   name: "assignrole-now",
   cooldown: 5,
-  description: "Assigns KD roles to currently tracked users every 8 hours.",
-  syntax: "!assignrole",
+  description: "Assigns KD roles to currently tracked users immediately.",
+  syntax: "!assignrole-now",
   include: true,
   execute(message, args) {
     if (!message.member.hasPermission("ADMINISTRATOR")) {
