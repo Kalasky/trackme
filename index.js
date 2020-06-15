@@ -17,7 +17,7 @@ for (const file of commandFiles) {
 }
 
 mongoose
-  .connect("mongodb://localhost/warzone-data", {
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useFindAndModify: false,
     useUnifiedTopology: true,
