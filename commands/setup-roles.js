@@ -56,7 +56,7 @@ module.exports = {
       );
     } else {
       message.channel.send(
-        "BITCH, all roles has been created. dont fcking try to create anymore"
+        "All roles have already been created."
       );
     }
   },

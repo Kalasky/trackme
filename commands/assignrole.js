@@ -4,11 +4,10 @@ var objRoles = require("../roles.json");
 const API = require("call-of-duty-api")();
 var cron = require('node-cron');
 
-
 module.exports = {
   name: "assignrole",
   cooldown: 5,
-  description: "Assign role for Warzone data",
+  description: "Assigns KD roles to currently tracked users every 8 hours.",
   syntax: "!assignrole",
   include: true,
   execute(message, args) {
@@ -75,7 +74,7 @@ module.exports = {
               message.guild.members
                 .fetch(player.discordID)
                 .then((memberData) => {
-                  console.log('fetch');
+                  // console.log('fetch');
                   // console.log(memberData._roles);
                   if (kills <= objRoles[0]["role_reqKills"]) {
                     // Add role
