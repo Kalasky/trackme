@@ -27,13 +27,25 @@ module.exports = {
 
       console.log(filterCommands)
       
+      const embedDisabledDM = new Discord.MessageEmbed()
+      .setColor("#0099ff")
+      .setTitle("Uh Oh!")
+      .setDescription(
+        "Looks like you have direct messages disabled!"
+      )
+      .setFooter('This message will automatically delete in 10 seconds');
+
       const embed = new Discord.MessageEmbed()
-      .setTitle('Warzone Tracker of Robert PoopyMaster')
+      .setTitle('Warzone Tracker')
       .setColor(0xff0000)
       .addFields(
         filterCommands
       );
-      message.author.send(embed);
+      message.author.send(embed).catch(() => message.reply(embedDisabledDM).then(msg => {
+        msg.delete({ timeout: 10000 })
+      }).catch((err) => {
+        console.log(err);
+      }))
       return;
     }
 
