@@ -2,11 +2,14 @@ require("dotenv").config();
 let Player = require("../models/player");
 var objRoles = require("../roles.json");
 const API = require("call-of-duty-api")();
+var cron = require('node-cron');
 
 module.exports = {
   name: "assignrole",
   cooldown: 5,
-  description: "Add role for Warzone data",
+  description: "Assigns KD roles to currently tracked users every 8 hours.",
+  syntax: "!assignrole",
+  include: true,
   execute(message, args) {
     if (!message.member.hasPermission("ADMINISTRATOR")) {
       message.channel.send("You must be an admin to execute this command.");
@@ -67,9 +70,11 @@ module.exports = {
               );
 
               // Access discord member data
+              cron.schedule('0 */8 * * *', () => {
               message.guild.members
                 .fetch(player.discordID)
                 .then((memberData) => {
+                  // console.log('fetch');
                   // console.log(memberData._roles);
                   if (kills <= objRoles[0]["role_reqKills"]) {
                     // Add role
@@ -123,6 +128,7 @@ module.exports = {
                     }
                   }
                 });
+              });
             })
             .then((err) => {
               // Add for display error message on API
