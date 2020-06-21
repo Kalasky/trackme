@@ -59,7 +59,7 @@ module.exports = {
         // Run through each record
         docs.map((player) => {
           // FIX: update platforms because its not using API.platforms
-          API.MWwz(player.platformID, API.platforms[player.platform])
+          API.MWBattleData(player.platformID, API.platforms[player.platform])
             .then((warzoneData) => {
               let kd = warzoneData.br.kdRatio.toFixed(6).slice(0, -4);
               let kills = warzoneData.br.kills;
