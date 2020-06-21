@@ -36,6 +36,7 @@ module.exports = {
       .setFooter('This message will automatically delete in 20 seconds');
 
     if (args.length == 2) {
+      
       Player.create({
         discordID: `${message.author.id}`,
         platformID: platformID,
@@ -44,6 +45,7 @@ module.exports = {
       }) // storing users discord ID, platform ID, and platform in db
         .then(function (dbPlayer) {
           // If saved successfully, print the new Player document to the console
+          // message.member.setNickname(platformID); // setting nickname of the message author to platformID
           console.log(dbPlayer);
           message.channel.send(
             `Your platformID \`${platformID}\` is now being tracked from platform \`${platform}\``
