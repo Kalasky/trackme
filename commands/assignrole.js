@@ -2,7 +2,7 @@ require("dotenv").config();
 let Player = require("../models/player");
 var objRoles = require("../roles.json");
 const API = require("call-of-duty-api")();
-var cron = require('node-cron');
+var cron = require("node-cron");
 
 module.exports = {
   name: "assignrole",
@@ -70,64 +70,66 @@ module.exports = {
               );
 
               // Access discord member data
-              cron.schedule('0 */8 * * *', () => {
-              message.guild.members
-                .fetch(player.discordID)
-                .then((memberData) => {
-                  // console.log('fetch');
-                  // console.log(memberData._roles);
-                  if (kills <= objRoles[0]["role_reqKills"]) {
-                    // Add role
-                    memberData.roles.add(
-                      getRole(objRoles[0]["role_name"], message)
-                    );
+              cron.schedule("0 */8 * * *", () => {
+                message.guild.members
+                  .fetch(player.discordID)
+                  .then((memberData) => {
+                    // console.log('fetch');
+                    // console.log(memberData._roles);
+                    if (kills <= objRoles[0]["role_reqKills"]) {
+                      // Add role
+                      memberData.roles.add(
+                        getRole(objRoles[0]["role_name"], message)
+                      );
 
-                    // Update player db record
-                    savePlayerRoleRecord(
-                      {
-                        _id: {
-                          $eq: player._id,
-                        },
-                      },
-                      objRoles[0]["role_name"]
-                    );
-                    /**
-                     * 1. Add roles then
-                     * 2. Update player record on db
-                     */
-                  } else {
-                    for (let i = 1; i < objRoles.length; i++) {
-                      // Identify current equivalent role of kd ratio
-                      if (
-                        kd >= objRoles[i]["role_min_kd"] &&
-                        kd <= objRoles[i]["role_max_kd"]
-                      ) {
-                        // If current role and new identified role is same, break loop by returning false
-                        if (
-                          player.currentRole == objRoles[i]["role_name"] &&
-                          player.currentRole == memberData._roles
-                        ) {
-                          return false;
-                        }
-
-                        // Remove role
-                        memberData.roles.remove(getRole(player.currentRole));
-                        // Update player record on db
-                        savePlayerRoleRecord(
-                          {
-                            _id: {
-                              $eq: player._id,
-                            },
+                      // Update player db record
+                      savePlayerRoleRecord(
+                        {
+                          _id: {
+                            $eq: player._id,
                           },
-                          objRoles[i]["role_name"]
-                        );
-                        // Apply new role
-                        memberData.roles.add(getRole(objRoles[i]["role_name"]));
-                        break;
+                        },
+                        objRoles[0]["role_name"]
+                      );
+                      /**
+                       * 1. Add roles then
+                       * 2. Update player record on db
+                       */
+                    } else {
+                      for (let i = 1; i < objRoles.length; i++) {
+                        // Identify current equivalent role of kd ratio
+                        if (
+                          kd >= objRoles[i]["role_min_kd"] &&
+                          kd <= objRoles[i]["role_max_kd"]
+                        ) {
+                          // If current role and new identified role is same, break loop by returning false
+                          if (
+                            player.currentRole == objRoles[i]["role_name"] &&
+                            player.currentRole == memberData._roles
+                          ) {
+                            return false;
+                          }
+
+                          // Remove role
+                          memberData.roles.remove(getRole(player.currentRole));
+                          // Update player record on db
+                          savePlayerRoleRecord(
+                            {
+                              _id: {
+                                $eq: player._id,
+                              },
+                            },
+                            objRoles[i]["role_name"]
+                          );
+                          // Apply new role
+                          memberData.roles.add(
+                            getRole(objRoles[i]["role_name"])
+                          );
+                          break;
+                        }
                       }
                     }
-                  }
-                });
+                  });
               });
             })
             .then((err) => {

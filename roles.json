@@ -14,37 +14,72 @@
         "role_reqKills": 500
     },
     {
-        "role_name": "1KD",
+        "role_name": "1 - 1.5KD",
         "role_color": "GREEN",
         "role_min_kd": 1.0,
+        "role_max_kd": 1.59,
+        "role_reqKills": 500
+    },
+    {
+        "role_name": "1.6 - 1.99KD",
+        "role_color": "GREEN",
+        "role_min_kd": 1.6,
         "role_max_kd": 1.99,
         "role_reqKills": 500
     },
     {
-        "role_name": "2KD",
+        "role_name": "2 - 2.5KD",
         "role_color": "ORANGE",
         "role_min_kd": 2.0,
+        "role_max_kd": 2.59,
+        "role_reqKills": 500
+    },
+    {
+        "role_name": "2.6 2.99KD",
+        "role_color": "ORANGE",
+        "role_min_kd": 2.6,
         "role_max_kd": 2.99,
         "role_reqKills": 500
     },
     {
-        "role_name": "3KD",
+        "role_name": "3 - 3.5KD",
         "role_color": "RED",
         "role_min_kd": 3.0,
+        "role_max_kd": 3.59,
+        "role_reqKills": 500
+    },
+    {
+        "role_name": "3.6 - 3.99KD",
+        "role_color": "RED",
+        "role_min_kd": 3.6,
         "role_max_kd": 3.99,
         "role_reqKills": 500
     },
     {
-        "role_name": "4KD",
+        "role_name": "4 - 4.5KD",
         "role_color": "PURPLE",
         "role_min_kd": 4.0,
+        "role_max_kd": 4.59,
+        "role_reqKills": 500
+    },
+    {
+        "role_name": "4.6 - 4.99KD",
+        "role_color": "PURPLE",
+        "role_min_kd": 4.6,
         "role_max_kd": 4.99,
         "role_reqKills": 500
     },
     {
-        "role_name": "5KD",
+        "role_name": "5 - 5.5KD",
         "role_color": "YELLOW",
         "role_min_kd": 5.0,
+        "role_max_kd": 5.59,
+        "role_reqKills": 500
+    },
+    {
+        "role_name": "5.6 - 5.99KD",
+        "role_color": "YELLOW",
+        "role_min_kd": 5.6,
         "role_max_kd": 5.99,
         "role_reqKills": 500
     },

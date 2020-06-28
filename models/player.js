@@ -6,13 +6,13 @@ const playerSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: true,
-      unique: true
+      // unique: true,
     },
     platformID: {
       type: String,
       trim: true,
       required: true,
-      unique: true
+      // unique: true,
     },
     platform: {
       type: String,
@@ -22,6 +22,21 @@ const playerSchema = new mongoose.Schema(
     currentRole: {
       type: String,
       trim: true,
+    },
+    loggedIn: {
+      type: Boolean,
+      trim: true,
+      // required: true
+    },
+    userAccountPlatforms: {
+      type: Array,
+      trim: true,
+      // required: true
+    },
+    userAccountGamertags: {
+      type: Array,
+      trim: true,
+      // required: true
     },
   },
   { timestamps: true }
