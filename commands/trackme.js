@@ -20,6 +20,7 @@ module.exports = {
       platform = args[1];
     } else {
       platformID = output[0].slice(1, -1);
+      console.log(platformID);
       count = output[0].split(" ").length;
       platform = args[count];
     }

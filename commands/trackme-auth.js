@@ -10,8 +10,6 @@ module.exports = {
   include: true,
   args: false,
   execute(message, args) {
-    let platform, platformID;
-
     message.author
       .send("Please enter more input.")
       .then((data) => {
@@ -41,10 +39,49 @@ module.exports = {
                     userAccountPlatforms: "TBD",
                     userAccountGamertags: "TBD",
                   });
-                  message.author
-                    .send("Please enter more input.")
+                  // if sign-in 200 grab user's identities
+                  API.getLoggedInIdentities()
                     .then((data) => {
-                      //   console.log(data.channel);
+                      const identities = data.titleIdentities;
+                      // Mapping through all of the current user's corresponding platforms/usernames
+                      const platforms = Object.keys(identities).map((data) => {
+                        return identities[data].platform;
+                      });
+                      console.log(platforms);
+
+                      const usernames = Object.keys(identities).map((data) => {
+                        return identities[data].username;
+                      });
+                      console.log(usernames);
+
+                      function userMyCodAccountData(query) {
+                        Player.findOneAndUpdate(
+                          query,
+                          {
+                            $set: {
+                              userAccountPlatforms: platforms,
+                              userAccountGamertags: usernames,
+                            },
+                          },
+                          function callback(err, doc) {
+                            if (err) {
+                              // Show errors
+                              console.log(err);
+                            }
+                          }
+                        );
+                      }
+                      userMyCodAccountData();
+
+                      // console.log(data.titleIdentities[0].username);
+                    })
+                    .catch((err) => console.log(err));
+
+                  message.author
+                    .send(
+                      "Login Successful! Enter in your gamertag and corresponding platform.\n\n*If your gamertag contains a space wrap it in quotes*."
+                    )
+                    .then((data) => {
                       let authorChannel = data.channel;
                       const filter = (m) => message.author.id === m.author.id;
 
@@ -59,45 +96,81 @@ module.exports = {
                           let messageContent = messages.first().content;
                           let arrayIndex = messageContent.split(" ");
 
-                          API.getLoggedInIdentities(
-                            arrayIndex[0],
-                            arrayIndex[1]
-                          )
-                            .then((data) => {
-                              // Looping through all of the current user's corresponding platforms/usernames
-                              for (
-                                i = 0;
-                                i < data.titleIdentities.length;
-                                i++
-                              ) {
-                                console.log(
-                                  `Platform: ${data.titleIdentities[i].platform} | Gamertag: ${data.titleIdentities[i].username}`
-                                );
+                          let pattern = /".*?"/g;
+                          let output = pattern.exec(arrayIndex);
+                          let platformID;
+                          let count;
+                          let platform;
 
-                                function userMyCodAccountData(query) {
-                                  Player.findOneAndUpdate(
-                                    query,
-                                    {
-                                      $set: {
-                                        userAccountPlatforms:
-                                          data.titleIdentities[i].platform,
-                                        userAccountGamertags:
-                                          data.titleIdentities[i].username,
-                                      },
+                          if (output == null) {
+                            platformID = arrayIndex[0];
+                            // console.log(`platformID: ${platformID}`);
+
+                            platform = arrayIndex[1];
+                            // console.log(`platform: ${platform}`);
+                          } else {
+                            platformID = output[0]
+                              .replace(/,/g, " ")
+                              .slice(1, -1);
+                            // console.log(`platformID: ${platformID}`);
+                            count = output[0].split(" ").length;
+                            platform = arrayIndex[arrayIndex.length - 1];
+                            // console.log(`platform: ${platform}`);
+                          }
+
+                          Player.find({}, "userAccountGamertags", function (
+                            err,
+                            data
+                          ) {
+                            console.log(err);
+                            console.log(data[0].userAccountGamertags);
+                            // const gamertags = Object.keys(data).map((res) => {
+                            //   return data[res].userAccountGamertags;
+                            // });
+                            // console.log(gamertags);
+
+                            // checking if platformID argument is equal to database gamertag values
+                            // let check = gamertags.some((values) => {
+                            //   // removing quotes from mapped values
+                            //   values = values.toString().replace(/"/g, "");
+                            //   // setting values equal to platformID
+                            //   console.log(`values: ${values}`);
+                            //   return values == platformID;
+                            // });
+                            // console.log(check);
+                            //   arrayIndex.length == 2
+
+                            function checkValues(arr, val) {
+                              return arr.some(function (arrVal) {
+                                return val == arrVal;
+                              });
+                            }
+                            const gamertags = data[0].userAccountGamertags;
+
+                            let check = checkValues(gamertags, platformID);
+                            console.log(check);
+
+                            if ((loggedIn = true && check == true)) {
+                              function trackmeData(query) {
+                                Player.findOneAndUpdate(
+                                  query,
+                                  {
+                                    $set: {
+                                      platform: platform,
+                                      platformID: platformID,
                                     },
-                                    function callback(err, doc) {
-                                      if (err) {
-                                        // Show errors
-                                        console.log(err);
-                                      }
+                                  },
+                                  function callback(err, doc) {
+                                    if (err) {
+                                      // Show errors
+                                      console.log(err);
                                     }
-                                  );
-                                }
-                                userMyCodAccountData();
+                                  }
+                                );
                               }
-                              // console.log(data.titleIdentities[0].username);
-                            })
-                            .catch((err) => console.log(err));
+                              trackmeData();
+                            }
+                          });
 
                           message.author.send(
                             `You've entered: ${messages.first().content}`
