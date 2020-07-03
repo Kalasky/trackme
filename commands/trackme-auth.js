@@ -118,12 +118,9 @@ module.exports = {
                             // console.log(`platform: ${platform}`);
                           }
 
-                          Player.find({}, "userAccountGamertags", function (
-                            err,
-                            data
-                          ) {
+                          Player.find({}, function (err, data) {
                             console.log(err);
-                            console.log(data[0].userAccountGamertags);
+                            // console.log(data);
                             // const gamertags = Object.keys(data).map((res) => {
                             //   return data[res].userAccountGamertags;
                             // });
@@ -140,17 +137,30 @@ module.exports = {
                             // console.log(check);
                             //   arrayIndex.length == 2
 
-                            function checkValues(arr, val) {
+                            function checkGamertag(arr, val) {
                               return arr.some(function (arrVal) {
                                 return val == arrVal;
                               });
                             }
                             const gamertags = data[0].userAccountGamertags;
 
-                            let check = checkValues(gamertags, platformID);
-                            console.log(check);
+                            function checkPlatform(arr, val) {
+                              return arr.some(function (arrVal) {
+                                return val == arrVal;
+                              });
+                            }
+                            const platforms = data[0].userAccountPlatforms;
 
-                            if ((loggedIn = true && check == true)) {
+                            let checkTag = checkGamertag(gamertags, platformID);
+                            console.log(checkTag);
+
+                            let checkPlat = checkPlatform(platforms, platform);
+                            console.log(checkPlat);
+
+                            if (
+                              (loggedIn =
+                                true && checkTag == true && checkPlat == true)
+                            ) {
                               function trackmeData(query) {
                                 Player.findOneAndUpdate(
                                   query,

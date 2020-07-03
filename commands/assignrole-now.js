@@ -126,7 +126,6 @@ module.exports = {
                     }
                   }
                 });
-          
             })
             .then((err) => {
               // Add for display error message on API
