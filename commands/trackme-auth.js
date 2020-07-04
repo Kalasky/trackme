@@ -1,7 +1,6 @@
 let Player = require("../models/player");
 const Discord = require("discord.js");
 const API = require("call-of-duty-api")();
-const fs = require("fs");
 
 module.exports = {
   name: "test",
@@ -30,7 +29,8 @@ module.exports = {
               .then((data) => {
                 console.log(data);
                 // Checking if the login credentials submitted by the user are valid.
-                if (200) {
+                if (API.isLoggedIn() == true) {
+                  console.log(API.isLoggedIn());
                   Player.create({
                     discordID: `${message.author.id}`,
                     loggedIn: true,
@@ -78,24 +78,28 @@ module.exports = {
                     })
                     .catch((err) => console.log(err));
 
-                  function checkmarkImage() {
-                    fs.readFile("../images/check.png", (err, checkmark) => {
-                      const loginSuccessEmbed = new Discord.MessageEmbed()
-                        .setColor("#4BB543")
-                        .setTitle("Login Successful")
-                        .addField("Inline field title", "Some value here", true)
-                        .setDescription("Some description here")
-                        .setThumbnail(checkmark)
-                        .setTimestamp()
-                        .setFooter(
-                          "Some footer text here",
-                          "https://i.imgur.com/wSTFkRM.png"
-                        );
-                      message.author.send(loginSuccessEmbed);
-                    });
-                  }
+                  const loginSuccessEmbed = new Discord.MessageEmbed()
+                    .setColor("#4BB543")
+                    .setTitle("Login Successful")
+                    .setDescription(
+                      "Enter in your gamertag with the corresponding platform.\n\nIf you enter invalid credentials you have a maximum of three tries before the bot exits the prompt."
+                    )
+                    .addFields(
+                      {
+                        name: "Syntax:",
+                        value: "`<Gamertag> <Platform>`",
+                        inline: true,
+                      },
+                      //   { name: "\u200B", value: "\u200B" },
+                      {
+                        name: "Syntax if gamertag contains spaces:",
+                        value: '`<"Gamer tag"> <Platform>`',
+                        inline: true,
+                      }
+                    )
+                    .setThumbnail("https://i.imgur.com/pfXAuiY.png");
 
-                  checkmarkImage().then((data) => {
+                  message.author.send(loginSuccessEmbed).then((data) => {
                     let authorChannel = data.channel;
                     const filter = (m) => message.author.id === m.author.id;
 
@@ -195,9 +199,8 @@ module.exports = {
                             trackmeData();
                           }
                         });
-
                         message.author.send(
-                          `You've entered: ${messages.first().content}`
+                          `You've entered: ${messages.first().content}` // success message
                         );
                       })
                       .catch(() => {
@@ -207,18 +210,30 @@ module.exports = {
                       });
                   });
                 } else {
-                  message.author.send(
-                    "Unauthorized. Incorrect username or password."
-                  );
+                  message.author.send(loginErrorEmbed); // use case unidentified...
                 }
-                // console.log(data.titleIdentities[0].username);
               })
               .catch((err) => console.log(err));
+            const loginErrorEmbed = new Discord.MessageEmbed()
+              .setColor("#FF0000")
+              .setTitle("Unauthorized. Incorrect Username or Password")
+              .setDescription(
+                "Login failed, you have two more attempts before this session automatically exits."
+              )
+              .addFields(
+                { name: "Syntax:", value: "`<email> <password>`" },
+                {
+                  name: "Reminder",
+                  value: "We do not save your login credentials.",
+                }
+              )
+              .setThumbnail("https://i.imgur.com/I6hxLXI.png");
 
-            message.author.send(`You've entered: ${messages.first().content}`);
+            message.author.send(loginErrorEmbed);
           })
           .catch(() => {
             message.author.send(
+              // runs if user does not enter credentials when prompted to login
               "You did not enter any input! The bot has exited the prompt, you can run `!trackme` in the main server to try again."
             );
           });
