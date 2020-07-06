@@ -1,6 +1,7 @@
 let Player = require("../models/player");
 const Discord = require("discord.js");
 const API = require("call-of-duty-api")();
+let assignRoleNow = require("./assignrole-now");
 
 module.exports = {
   name: "test",
@@ -197,6 +198,7 @@ module.exports = {
                               );
                             }
                             trackmeData();
+                            assignRoleNow.execute(message); // run function from assignrole-now imported module
                           }
                         });
                         message.author.send(
@@ -213,23 +215,25 @@ module.exports = {
                   message.author.send(loginErrorEmbed); // use case unidentified...
                 }
               })
-              .catch((err) => console.log(err));
-            const loginErrorEmbed = new Discord.MessageEmbed()
-              .setColor("#FF0000")
-              .setTitle("Unauthorized. Incorrect Username or Password")
-              .setDescription(
-                "Login failed, you have two more attempts before this session automatically exits."
-              )
-              .addFields(
-                { name: "Syntax:", value: "`<email> <password>`" },
-                {
-                  name: "Reminder",
-                  value: "We do not save your login credentials.",
-                }
-              )
-              .setThumbnail("https://i.imgur.com/I6hxLXI.png");
+              .catch((err) => {
+                console.log(err);
+                const loginErrorEmbed = new Discord.MessageEmbed()
+                  .setColor("#FF0000")
+                  .setTitle("Unauthorized. Incorrect Username or Password")
+                  .setDescription(
+                    "Login failed, you have two more attempts before this session automatically exits."
+                  )
+                  .addFields(
+                    { name: "Syntax:", value: "`<email> <password>`" },
+                    {
+                      name: "Reminder",
+                      value: "We do not save your login credentials.",
+                    }
+                  )
+                  .setThumbnail("https://i.imgur.com/I6hxLXI.png");
 
-            message.author.send(loginErrorEmbed);
+                message.author.send(loginErrorEmbed);
+              });
           })
           .catch(() => {
             message.author.send(
