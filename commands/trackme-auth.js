@@ -11,8 +11,25 @@ module.exports = {
   include: true,
   args: false,
   execute(message, args) {
+    const initialPromptEmbed = new Discord.MessageEmbed()
+      .setColor("#00C5CD")
+      .setTitle("Enter Your Email and Password")
+      .setDescription(
+        "Enter your login details from https://profile.callofduty.com/cod/login\n\nYou have three attempts before this session automatically exits."
+      )
+      .addFields(
+        {
+          name: "Why Login?",
+          value:
+            "We require authentication for all users. This is to prevent users from having the ability to track themselves as anyone. ",
+        },
+        { name: "Syntax:", value: "`<email> <password>`" }
+      )
+      .setThumbnail("https://i.imgur.com/tpbXWeM.png")
+      .setFooter("We do not store login credentials.");
+
     message.author
-      .send("Please enter more input.")
+      .send(initialPromptEmbed)
       .then((data) => {
         // console.log(data.channel);
         // data.channel targets the current user's private message channel
@@ -20,7 +37,7 @@ module.exports = {
         const filter = (m) => message.author.id === m.author.id;
 
         authorChannel
-          .awaitMessages(filter, { time: 45000, max: 1, errors: ["time"] })
+          .awaitMessages(filter, { time: 120000, max: 1, errors: ["time"] })
           .then((messages) => {
             console.log(messages.first().content);
             let messageContent = messages.first().content;
@@ -83,7 +100,7 @@ module.exports = {
                     .setColor("#4BB543")
                     .setTitle("Login Successful")
                     .setDescription(
-                      "Enter in your gamertag with the corresponding platform.\n\nIf you enter invalid credentials you have a maximum of three tries before the bot exits the prompt."
+                      "Enter in your gamertag with the corresponding platform. If you enter invalid credentials you have a maximum of three tries before the bot exits the prompt."
                     )
                     .addFields(
                       {
@@ -91,11 +108,24 @@ module.exports = {
                         value: "`<Gamertag> <Platform>`",
                         inline: true,
                       },
-                      //   { name: "\u200B", value: "\u200B" },
+
                       {
                         name: "Syntax if gamertag contains spaces:",
                         value: '`<"Gamer tag"> <Platform>`',
                         inline: true,
+                      },
+                      {
+                        name: "Platforms:",
+                        value:
+                          "Battlenet: `battle`, Playstation: `psn`, Xbox: `xbl`, Activision: `acti`",
+                        inline: false,
+                      },
+                      {
+                        name:
+                          "Not sure about which gamertag and platform to track?",
+                        value:
+                          "Login to https://profile.callofduty.com/cod/login then hover over your name on the top right and click **Linked Accounts.** There you will see a list of your gamertags with corresponding platforms.",
+                        inline: false,
                       }
                     )
                     .setThumbnail("https://i.imgur.com/pfXAuiY.png");
@@ -106,7 +136,7 @@ module.exports = {
 
                     authorChannel
                       .awaitMessages(filter, {
-                        time: 45000,
+                        time: 120000,
                         max: 1,
                         errors: ["time"],
                       })
@@ -198,21 +228,72 @@ module.exports = {
                               );
                             }
                             trackmeData();
-                            assignRoleNow.execute(message); // run function from assignrole-now imported module
+                            assignRoleNow.execute(message); // runs code from assignrole-now imported module
+                            const completedPromptEmbed = new Discord.MessageEmbed()
+                              .setColor("#4BB543")
+                              .setTitle("Prompt Completed!")
+                              .setDescription(
+                                "Your data is now being tracked. Check out your roles in the server!"
+                              )
+                              .setThumbnail("https://i.imgur.com/pfXAuiY.png");
+
+                            message.author.send(
+                              completedPromptEmbed // completed prompt message
+                            );
+                          } else {
+                            const tagPlatformErrorEmbed = new Discord.MessageEmbed()
+                              .setColor("#FF0000")
+                              .setTitle("Invalid Gamertag / Platform")
+                              .setDescription(
+                                "The Gamertag and/or platform submitted is invalid. **Gamertag and platform is case senstive.**"
+                              )
+                              .addFields(
+                                {
+                                  name: "Syntax:",
+                                  value: "`<Gamertag> <Platform>`",
+                                  inline: true,
+                                },
+                                {
+                                  name: "Syntax if gamertag contains spaces:",
+                                  value: '`<"Gamer tag"> <Platform>`',
+                                  inline: true,
+                                },
+                                {
+                                  name: "Platforms:",
+                                  value:
+                                    "Battlenet: `battle`, Playstation: `psn`, Xbox: `xbl`, Activision: `acti`",
+                                  inline: false,
+                                },
+                                {
+                                  name:
+                                    "Not sure about which gamertag and platform to track?",
+                                  value:
+                                    "Login to https://profile.callofduty.com/cod/login then hover over your name on the top right and click **Linked Accounts.** There you will see a list of your gamertags with corresponding platforms.",
+                                  inline: false,
+                                }
+                              )
+                              .setThumbnail("https://i.imgur.com/I6hxLXI.png");
+
+                            message.author.send(tagPlatformErrorEmbed);
                           }
                         });
-                        message.author.send(
-                          `You've entered: ${messages.first().content}` // success message
-                        );
                       })
                       .catch(() => {
+                        const inputTrackErrorEmbed = new Discord.MessageEmbed()
+                          .setColor("#FF0000")
+                          .setTitle(
+                            "Ran Out of Time! The Prompt Automatically Expired"
+                          )
+                          .setDescription(
+                            "You did not enter any input within 2 minutes when asked to enter your gamertag and corresponding platform! The bot has exited the prompt, you can run `!trackme` in the main server to try again."
+                          )
+                          .setThumbnail("https://i.imgur.com/I6hxLXI.png");
                         message.author.send(
-                          "You did not enter any input! The bot has exited the prompt, you can run `!trackme` in the main server to try again."
+                          // runs if user does not enter credentials when prompted to enter gamertag and platform
+                          inputTrackErrorEmbed
                         );
                       });
                   });
-                } else {
-                  message.author.send(loginErrorEmbed); // use case unidentified...
                 }
               })
               .catch((err) => {
@@ -226,19 +307,28 @@ module.exports = {
                   .addFields(
                     { name: "Syntax:", value: "`<email> <password>`" },
                     {
-                      name: "Reminder",
-                      value: "We do not save your login credentials.",
+                      name: "Forget Password?",
+                      value:
+                        "Click the following link to reset it: https://profile.callofduty.com/cod/forgotPassword",
                     }
                   )
-                  .setThumbnail("https://i.imgur.com/I6hxLXI.png");
+                  .setThumbnail("https://i.imgur.com/I6hxLXI.png")
+                  .setFooter("We do not store login credentials.");
 
                 message.author.send(loginErrorEmbed);
               });
           })
           .catch(() => {
+            const inputLoginErrorEmbed = new Discord.MessageEmbed()
+              .setColor("#FF0000")
+              .setTitle("Ran Out of Time! The Prompt Automatically Expired")
+              .setDescription(
+                "You did not enter any input within 2 minutes when asked to login! The bot has exited the prompt, you can run `!trackme` in the main server to try again."
+              )
+              .setThumbnail("https://i.imgur.com/I6hxLXI.png");
             message.author.send(
               // runs if user does not enter credentials when prompted to login
-              "You did not enter any input! The bot has exited the prompt, you can run `!trackme` in the main server to try again."
+              inputLoginErrorEmbed
             );
           });
       })
