@@ -57,6 +57,7 @@ module.exports = {
                     currentRole: "TBD",
                     userAccountPlatforms: "TBD",
                     userAccountGamertags: "TBD",
+                    inPrompt: true,
                   });
                   // if sign-in 200 grab user's identities
                   API.getLoggedInIdentities()
@@ -240,6 +241,24 @@ module.exports = {
                             message.author.send(
                               completedPromptEmbed // completed prompt message
                             );
+
+                            function endOfPrompt(query) {
+                              Player.findOneAndUpdate(
+                                query,
+                                {
+                                  $set: {
+                                    inPrompt: false,
+                                  },
+                                },
+                                function callback(err, doc) {
+                                  if (err) {
+                                    // Show errors
+                                    console.log(err);
+                                  }
+                                }
+                              );
+                            }
+                            endOfPrompt();
                           } else {
                             const tagPlatformErrorEmbed = new Discord.MessageEmbed()
                               .setColor("#FF0000")

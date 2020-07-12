@@ -38,6 +38,11 @@ const playerSchema = new mongoose.Schema(
       trim: true,
       // required: true
     },
+    inPrompt: {
+      type: Boolean,
+      trim: true,
+      // required: true
+    },
   },
   { timestamps: true }
 );
