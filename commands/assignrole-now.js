@@ -1,6 +1,7 @@
 require("dotenv").config();
 let Player = require("../models/player");
 var objRoles = require("../roles.json");
+const killRoles = require("../kill_roles.json");
 const API = require("call-of-duty-api")();
 
 module.exports = {
@@ -73,13 +74,19 @@ module.exports = {
               console.log(
                 `Discord ID: ${player.discordID}     Platform ID: ${player.platformID}     Platform: ${player.platform}      KD: ${kd}    Kills: ${kills}`
               );
+              // Get kill role object
+              let killRole = Object.keys(killRoles).filter((elem) => {
+                return kills >= killRoles[elem]["role_req"];
+              });
+              killRole = killRoles[killRole.length - 1];
 
               // Access discord member data
               message.guild.members
                 .fetch(player.discordID)
                 .then((memberData) => {
-                  // console.log('fetch');
-                  // console.log(memberData._roles);
+                  // Apply kill role
+                  memberData.roles.add(getRole(killRole["role_name"], message));
+
                   if (kills <= objRoles[0]["role_reqKills"]) {
                     // Add role
                     memberData.roles.add(
