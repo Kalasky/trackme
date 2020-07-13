@@ -1,5 +1,5 @@
 const defaultRoles = require("../roles.json");
-const killRoles = require("../kill_roles.json");
+const killRoles = require("../win_roles.json");
 
 module.exports = {
   name: "setup-roles",

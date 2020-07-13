@@ -1,7 +1,7 @@
 require("dotenv").config();
 let Player = require("../models/player");
 var objRoles = require("../roles.json");
-const killRoles = require("../kill_roles.json");
+const killRoles = require("../win_roles.json");
 const API = require("call-of-duty-api")();
 
 module.exports = {
@@ -70,13 +70,14 @@ module.exports = {
             .then((warzoneData) => {
               let kd = warzoneData.br.kdRatio.toFixed(6).slice(0, -4);
               let kills = warzoneData.br.kills;
+              console.log(warzoneData);
               // Display player record in console
               console.log(
                 `Discord ID: ${player.discordID}     Platform ID: ${player.platformID}     Platform: ${player.platform}      KD: ${kd}    Kills: ${kills}`
               );
               // Get kill role object
               let killRole = Object.keys(killRoles).filter((elem) => {
-                return kills >= killRoles[elem]["role_req"];
+                return warzoneData.br.wins >= killRoles[elem]["role_req"];
               });
               killRole = killRoles[killRole.length - 1];
 
