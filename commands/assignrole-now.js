@@ -5,22 +5,7 @@ const killRoles = require("../kill_roles.json");
 const API = require("call-of-duty-api")();
 
 module.exports = {
-  name: "assignrole-now",
-  cooldown: 5,
-  description: "Assigns KD roles to currently tracked users immediately.",
-  syntax: "!assignrole-now",
-  include: true,
   execute(message, args) {
-    Player.find({}, function (err, data) {
-      if (
-        !message.member.hasPermission("ADMINISTRATOR") &&
-        data[0].inPrompt == false
-      ) {
-        message.channel.send("You must be an admin to execute this command.");
-        return false;
-      }
-    });
-
     API.login(process.env.COD_EMAIL, process.env.COD_PASSWORD).then((data) => {
       // Common functions
       //--------------------------------------------//
