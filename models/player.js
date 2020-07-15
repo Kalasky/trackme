@@ -19,7 +19,11 @@ const playerSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
-    currentRole: {
+    currentKDRole: {
+      type: String,
+      trim: true,
+    },
+    currentWinRole: {
       type: String,
       trim: true,
     },

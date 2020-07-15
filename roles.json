@@ -85,7 +85,7 @@
     },
     {
         "role_name": "6KD+",
-        "role_color": "PINK",
+        "role_color": "GOLD",
         "role_min_kd": 6.0,
         "role_max_kd": 99999,
         "role_reqKills": 500
