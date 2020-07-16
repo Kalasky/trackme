@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "call-of-duty-api": "^1.2.5",
+    "call-of-duty-api": "^1.2.8",
     "discord.js": "^12.1.1",
     "dotenv": "^8.2.0",
     "mongoose": "^5.9.7",
