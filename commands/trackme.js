@@ -11,16 +11,16 @@ module.exports = {
   execute(message, args) {
     let pattern = /".*?"/g;
     let output = pattern.exec(message.content);
-    let platformID;
+    let gamertag;
     let count;
     let platform;
 
     if (output == null) {
-      platformID = args[0];
+      gamertag = args[0];
       platform = args[1];
     } else {
-      platformID = output[0].slice(1, -1);
-      console.log(platformID);
+      gamertag = output[0].slice(1, -1);
+      console.log(gamertag);
       count = output[0].split(" ").length;
       platform = args[count];
     }
@@ -36,16 +36,16 @@ module.exports = {
     if (args.length == 2) {
       Player.create({
         discordID: `${message.author.id}`,
-        platformID: platformID,
+        gamertag: gamertag,
         platform: platform,
         currentRole: "TBD",
       }) // storing users discord ID, platform ID, and platform in db
         .then(function (dbPlayer) {
           // If saved successfully, print the new Player document to the console
-          // message.member.setNickname(platformID); // setting nickname of the message author to platformID
+          // message.member.setNickname(gamertag); // setting nickname of the message author to gamertag
           console.log(dbPlayer);
           message.channel.send(
-            `Your platformID \`${platformID}\` is now being tracked from platform \`${platform}\``
+            `Your gamertag \`${gamertag}\` is now being tracked from platform \`${platform}\``
           );
         })
         .catch(function (err) {

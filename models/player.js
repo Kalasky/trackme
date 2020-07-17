@@ -8,7 +8,7 @@ const playerSchema = new mongoose.Schema(
       required: true,
       // unique: true,
     },
-    platformID: {
+    gamertag: {
       type: String,
       trim: true,
       required: true,

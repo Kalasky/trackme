@@ -68,15 +68,14 @@ module.exports = {
         // Run through each record
         docs.map((player) => {
           // FIX: update platforms because its not using API.platforms
-          API.MWBattleData(player.platformID, API.platforms[player.platform])
+          API.MWBattleData(player.gamertag, API.platforms[player.platform])
             .then((warzoneData) => {
               let kd = warzoneData.br.kdRatio.toFixed(6).slice(0, -4);
               let kills = warzoneData.br.kills;
               let wins = warzoneData.br.wins;
-              // console.log(warzoneData);
               // Display player record in console
               console.log(
-                `Discord ID: ${player.discordID}     Platform ID: ${player.platformID}     Platform: ${player.platform}      KD: ${kd}    Kills: ${kills} Wins: ${wins}`
+                `Discord ID: ${player.discordID}\nGamertag: ${player.gamertag}\nPlatform: ${player.platform}\nKD: ${kd}\nKills: ${kills}\nWins: ${wins}`
               );
 
               // Access discord member data
@@ -99,7 +98,7 @@ module.exports = {
                     );
                   } else if (
                     wins > winRoles[0]["role_req"] &&
-                    wins <= winRoles[1]["role_req"]
+                    wins <= winRoles[1]["role_max_win"]
                   ) {
                     memberData.roles.add(
                       getRole(winRoles[1]["role_name"], message)
@@ -204,14 +203,14 @@ module.exports = {
                   }
                 });
             })
-            .then((err) => {
+            .catch((err) => {
               // Add for display error message on API
               if (err != undefined) {
                 console.log("API error:", err);
               }
             });
         });
-      });
+      }).catch((err) => console.log(err));
     });
   },
 };

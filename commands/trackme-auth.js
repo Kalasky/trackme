@@ -52,7 +52,7 @@ module.exports = {
                   Player.create({
                     discordID: `${message.author.id}`,
                     loggedIn: true,
-                    platformID: "TBD",
+                    gamertag: "TBD",
                     platform: "TBD",
                     currentRole: "TBD",
                     userAccountPlatforms: "TBD",
@@ -62,17 +62,22 @@ module.exports = {
                   // if sign-in 200 grab user's identities
                   API.getLoggedInIdentities()
                     .then((data) => {
+                      console.log(data);
                       const identities = data.titleIdentities;
                       // Mapping through all of the current user's corresponding platforms/usernames
                       const platforms = Object.keys(identities).map((data) => {
                         return identities[data].platform;
                       });
-                      console.log(platforms);
 
                       const usernames = Object.keys(identities).map((data) => {
                         return identities[data].username;
                       });
-                      console.log(usernames);
+
+                      API.ConnectedAccounts(usernames[0], platforms[0]).then(
+                        (data) => {
+                          console.log(data);
+                        }
+                      );
 
                       function userMyCodAccountData(query) {
                         Player.findOneAndUpdate(
@@ -148,21 +153,19 @@ module.exports = {
 
                         let pattern = /".*?"/g;
                         let output = pattern.exec(arrayIndex);
-                        let platformID;
+                        let gamertag;
                         let count;
                         let platform;
 
                         if (output == null) {
-                          platformID = arrayIndex[0];
-                          // console.log(`platformID: ${platformID}`);
+                          gamertag = arrayIndex[0];
+                          // console.log(`gamertag: ${gamertag}`);
 
                           platform = arrayIndex[1];
                           // console.log(`platform: ${platform}`);
                         } else {
-                          platformID = output[0]
-                            .replace(/,/g, " ")
-                            .slice(1, -1);
-                          // console.log(`platformID: ${platformID}`);
+                          gamertag = output[0].replace(/,/g, " ").slice(1, -1);
+                          // console.log(`gamertag: ${gamertag}`);
                           count = output[0].split(" ").length;
                           platform = arrayIndex[arrayIndex.length - 1];
                           // console.log(`platform: ${platform}`);
@@ -170,22 +173,6 @@ module.exports = {
 
                         Player.find({}, function (err, data) {
                           console.log(err);
-                          // console.log(data);
-                          // const gamertags = Object.keys(data).map((res) => {
-                          //   return data[res].userAccountGamertags;
-                          // });
-                          // console.log(gamertags);
-
-                          // checking if platformID argument is equal to database gamertag values
-                          // let check = gamertags.some((values) => {
-                          //   // removing quotes from mapped values
-                          //   values = values.toString().replace(/"/g, "");
-                          //   // setting values equal to platformID
-                          //   console.log(`values: ${values}`);
-                          //   return values == platformID;
-                          // });
-                          // console.log(check);
-                          //   arrayIndex.length == 2
 
                           function checkGamertag(arr, val) {
                             return arr.some(function (arrVal) {
@@ -201,9 +188,13 @@ module.exports = {
                           }
                           const platforms = data[0].userAccountPlatforms;
 
-                          let checkTag = checkGamertag(gamertags, platformID);
+                          // Checking if gamertag input matches one of the DB values
+                          // gamertags is array of all user's gamertags
+                          let checkTag = checkGamertag(gamertags, gamertag);
                           console.log(checkTag);
 
+                          // Checking if platform input matches one of the DB values
+                          // platforms is array of all user's gamertags
                           let checkPlat = checkPlatform(platforms, platform);
                           console.log(checkPlat);
 
@@ -217,7 +208,7 @@ module.exports = {
                                 {
                                   $set: {
                                     platform: platform,
-                                    platformID: platformID,
+                                    gamertag: gamertag,
                                   },
                                 },
                                 function callback(err, doc) {
