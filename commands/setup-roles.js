@@ -1,4 +1,5 @@
-var objRoles = require("../roles.json");
+const defaultRoles = require("../roles.json");
+const killRoles = require("../win_roles.json");
 
 module.exports = {
   name: "setup-roles",
@@ -13,51 +14,66 @@ module.exports = {
       return false;
     }
 
-    let getRole = (roleString) => {
-      // Find discord role object
+    // Prep list of all roles that needs to be setup
+    const roleList = [defaultRoles, killRoles];
+
+    // Find discord role object
+    const getRole = (roleString) => {
       let role = message.guild.roles.cache.find((data) => {
         return data.name == roleString;
       });
       return role;
     };
 
-    let roleList = objRoles.map(function (elem) {
-      return elem.role_name;
-    });
-    // .filter(function(role_name) {
-    //   return role_name != "1KD";
-    // })
-    // .join(", ");
-
     let roleCreated = []; //this is the container for the roles that is created, meaning its not on discord
-
-    for (let i = 0; i < objRoles.length; i++) {
-      if (!getRole(objRoles[i]["role_name"])) {
-        console.log(objRoles[i]["role_name"], "has just been created!");
-        message.guild.roles
-          .create({
-            data: {
-              name: objRoles[i].role_name,
-              color: objRoles[i].role_color,
-            },
-          })
-          .then(console.log)
-          .catch(console.error);
-        roleCreated.push(objRoles[i].role_name);
+    for (let role_list = 0; role_list < roleList.length; role_list++) {
+      for (
+        let role_elem = 0;
+        role_elem < roleList[role_list].length;
+        role_elem++
+      ) {
+        const role = roleList[role_list][role_elem];
+        if (!getRole(role["role_name"])) {
+          console.log(role["role_name"], "has just been created!");
+          message.guild.roles
+            .create({
+              data: {
+                name: role.role_name,
+                color: role.role_color,
+              },
+            })
+            .then()
+            .catch(console.error);
+          roleCreated.push(role.role_name);
+        }
       }
     }
+    let difference = [];
+    for (let role_list = 0; role_list < roleList.length; role_list++) {
+      let roleNames = [];
+      for (
+        let role_elem = 0;
+        role_elem < roleList[role_list].length;
+        role_elem++
+      ) {
+        const role = roleList[role_list][role_elem];
+        roleNames.push(role.role_name);
+      }
+      difference.push(roleNames.filter((x) => roleCreated.indexOf(x) === -1));
+    }
 
-    let difference = roleList.filter((x) => roleCreated.indexOf(x) === -1);
-    if (difference.length == 0) {
-      message.channel.send("All 8 roles have been created.");
+    let finalDiff = [];
+    for (let i = 0; i < difference.length; i++) {
+      finalDiff.push(...difference[i]);
+    }
+    if (finalDiff.length == 0) {
+      message.channel.send("All roles have been created.");
     } else if (roleCreated.length > 0) {
       message.channel.send(
-        `Role \`${difference.toString()}\` already exists and was not created to prevent duplication.`
+        `Role \`${finalDiff.toString()}\` already exists and was not created to prevent duplication.`
       );
     } else {
-      message.channel.send(
-        "All roles have already been created."
-      );
+      message.channel.send("All roles have already been created.");
     }
   },
 };

@@ -11,11 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "call-of-duty-api": "^1.2.5",
-    "cron": "^1.8.2",
-    "discord-leveling": "^1.1.0",
+    "call-of-duty-api": "^1.2.8",
     "discord.js": "^12.1.1",
     "dotenv": "^8.2.0",
+    "mongodb": "^3.6.0",
     "mongoose": "^5.9.7",
     "node-cron": "^2.0.3",
     "nodemon": "^2.0.3"

@@ -2,6 +2,7 @@ require("dotenv").config();
 const fs = require("fs");
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
+const { MongoClient } = require("mongodb");
 const API = require("call-of-duty-api")();
 const { prefix, token } = require("./config.json");
 const client = new Discord.Client();

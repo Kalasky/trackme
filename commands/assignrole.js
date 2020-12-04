@@ -1,8 +1,9 @@
 require("dotenv").config();
 let Player = require("../models/player");
-var objRoles = require("../roles.json");
+const kdRoles = require("../roles.json");
+const winRoles = require("../win_roles.json");
 const API = require("call-of-duty-api")();
-var cron = require('node-cron');
+const cron = require("node-cron");
 
 module.exports = {
   name: "assignrole",
@@ -38,12 +39,29 @@ module.exports = {
        * @param role
        * @return none
        */
-      let savePlayerRoleRecord = (query, role) => {
+      let savePlayerKDRoleRecord = (query, role) => {
         Player.findOneAndUpdate(
           query,
           {
             $set: {
-              currentRole: role,
+              currentKDRole: role,
+            },
+          },
+          function callback(err, doc) {
+            if (err) {
+              // Show errors
+              console.log(err);
+            }
+          }
+        );
+      };
+
+      let savePlayerWinRoleRecord = (query, role) => {
+        Player.findOneAndUpdate(
+          query,
+          {
+            $set: {
+              currentWinRole: role,
             },
           },
           function callback(err, doc) {
@@ -60,74 +78,152 @@ module.exports = {
         // Run through each record
         docs.map((player) => {
           // FIX: update platforms because its not using API.platforms
-          API.MWwz(player.platformID, API.platforms[player.platform])
+          API.MWBattleData(player.gamertag, API.platforms[player.platform])
             .then((warzoneData) => {
               let kd = warzoneData.br.kdRatio.toFixed(6).slice(0, -4);
               let kills = warzoneData.br.kills;
+              let wins = warzoneData.br.wins;
               // Display player record in console
               console.log(
-                `Discord ID: ${player.discordID}     Platform ID: ${player.platformID}     Platform: ${player.platform}      KD: ${kd}    Kills: ${kills}`
+                `Discord ID: ${player.discordID}\nGamertag: ${player.gamertag}\nPlatform: ${player.platform}\nKD: ${kd}\nKills: ${kills}\nWins: ${wins}`
               );
 
               // Access discord member data
-              cron.schedule('0 */8 * * *', () => {
-              message.guild.members
-                .fetch(player.discordID)
-                .then((memberData) => {
-                  // console.log('fetch');
-                  // console.log(memberData._roles);
-                  if (kills <= objRoles[0]["role_reqKills"]) {
-                    // Add role
-                    memberData.roles.add(
-                      getRole(objRoles[0]["role_name"], message)
-                    );
+              cron.schedule("0 */8 * * *", () => {
+                message.guild.members
+                  .fetch(player.discordID)
+                  .then((memberData) => {
+                    // console.log('fetch');
+                    // console.log(memberData._roles);
 
-                    // Update player db record
-                    savePlayerRoleRecord(
-                      {
-                        _id: {
-                          $eq: player._id,
-                        },
-                      },
-                      objRoles[0]["role_name"]
-                    );
-                    /**
-                     * 1. Add roles then
-                     * 2. Update player record on db
-                     */
-                  } else {
-                    for (let i = 1; i < objRoles.length; i++) {
-                      // Identify current equivalent role of kd ratio
-                      if (
-                        kd >= objRoles[i]["role_min_kd"] &&
-                        kd <= objRoles[i]["role_max_kd"]
-                      ) {
-                        // If current role and new identified role is same, break loop by returning false
-                        if (
-                          player.currentRole == objRoles[i]["role_name"] &&
-                          player.currentRole == memberData._roles
-                        ) {
-                          return false;
-                        }
+                    if (wins <= winRoles[0]["role_req"]) {
+                      memberData.roles.add(
+                        getRole(winRoles[0]["role_name"], message)
+                      );
 
-                        // Remove role
-                        memberData.roles.remove(getRole(player.currentRole));
-                        // Update player record on db
-                        savePlayerRoleRecord(
-                          {
-                            _id: {
-                              $eq: player._id,
-                            },
+                      // Update player db record
+                      savePlayerWinRoleRecord(
+                        {
+                          _id: {
+                            $eq: player._id,
                           },
-                          objRoles[i]["role_name"]
-                        );
-                        // Apply new role
-                        memberData.roles.add(getRole(objRoles[i]["role_name"]));
-                        break;
+                        },
+                        winRoles[0]["role_name"]
+                      );
+                    } else if (
+                      wins > winRoles[0]["role_req"] &&
+                      wins <= winRoles[1]["role_req"]
+                    ) {
+                      memberData.roles.add(
+                        getRole(winRoles[1]["role_name"], message)
+                      );
+                      // Update player db record
+                      savePlayerWinRoleRecord(
+                        {
+                          _id: {
+                            $eq: player._id,
+                          },
+                        },
+                        winRoles[1]["role_name"]
+                      );
+                      /**
+                       * 1. Add roles then
+                       * 2. Update player record on db
+                       */
+                    } else {
+                      for (let i = 1; i < winRoles.length; i++) {
+                        // Identify current equivalent role of kd ratio
+                        if (
+                          wins >= winRoles[i]["role_min_win"] &&
+                          wins <= winRoles[i]["role_max_win"]
+                        ) {
+                          // If current role and new identified role is same, break loop by returning false
+                          if (
+                            player.currentWinRole == winRoles[i]["role_name"] &&
+                            player.currentWinRole == memberData._roles
+                          ) {
+                            return false;
+                          }
+
+                          // Remove role
+                          memberData.roles.remove(
+                            getRole(player.currentWinRole)
+                          );
+                          // Update player record on db
+                          savePlayerWinRoleRecord(
+                            {
+                              _id: {
+                                $eq: player._id,
+                              },
+                            },
+                            winRoles[i]["role_name"]
+                          );
+                          // Apply new role
+                          memberData.roles.add(
+                            getRole(winRoles[i]["role_name"])
+                          );
+                          break;
+                        }
                       }
                     }
-                  }
-                });
+
+                    if (kills <= kdRoles[0]["role_reqKills"]) {
+                      // Add role
+                      memberData.roles.add(
+                        getRole(kdRoles[0]["role_name"], message)
+                      );
+
+                      // Update player db record
+                      savePlayerKDRoleRecord(
+                        {
+                          _id: {
+                            $eq: player._id,
+                          },
+                        },
+                        kdRoles[0]["role_name"]
+                      );
+                      /**
+                       * 1. Add roles then
+                       * 2. Update player record on db
+                       */
+                    } else {
+                      for (let i = 1; i < kdRoles.length; i++) {
+                        // Identify current equivalent role of kd ratio
+                        if (
+                          kd >= kdRoles[i]["role_min_kd"] &&
+                          kd <= kdRoles[i]["role_max_kd"]
+                        ) {
+                          // If current role and new identified role is same, break loop by returning false
+                          if (
+                            player.currentKDRole == kdRoles[i]["role_name"] &&
+                            player.currentKDRole == memberData._roles
+                          ) {
+                            return false;
+                          }
+
+                          // Remove role
+                          memberData.roles.remove(
+                            getRole(player.currentKDRole)
+                          );
+
+                          // Update player record on db
+                          savePlayerKDRoleRecord(
+                            {
+                              _id: {
+                                $eq: player._id,
+                              },
+                            },
+                            kdRoles[i]["role_name"]
+                          );
+                          // Apply new role
+                          memberData.roles.add(
+                            getRole(kdRoles[i]["role_name"])
+                          );
+                          break;
+                        }
+                      }
+                    }
+                  });
               });
             })
             .then((err) => {

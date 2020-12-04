@@ -1,0 +1,91 @@
+[
+  {
+    "role_name": "No Wins :(",
+    "role_color": "RED",
+    "role_req": 0
+  },
+  {
+    "role_name": "Under 10 Wins",
+    "role_color": "RED",
+    "role_min_win": 1,
+    "role_max_win": 9
+  },
+  {
+    "role_name": "10+ Wins",
+    "role_color": "RED",
+    "role_min_win": 10,
+    "role_max_win": 24
+  },
+  {
+    "role_name": "25+ Wins",
+    "role_color": "RED",
+    "role_min_win": 25,
+    "role_max_win": 49
+  },
+  {
+    "role_name": "50+ Wins",
+    "role_color": "RED",
+    "role_min_win": 50,
+    "role_max_win": 99
+  },
+  {
+    "role_name": "100+ Wins",
+    "role_color": "RED",
+    "role_min_win": 100,
+    "role_max_win": 199
+  },
+  {
+    "role_name": "200+ Wins",
+    "role_color": "RED",
+    "role_min_win": 200,
+    "role_max_win": 299
+  },
+  {
+    "role_name": "300+ Wins",
+    "role_color": "RED",
+    "role_min_win": 300,
+    "role_max_win": 399
+  },
+  {
+    "role_name": "400+ Wins",
+    "role_color": "RED",
+    "role_min_win": 400,
+    "role_max_win": 499
+  },
+  {
+    "role_name": "500+ Wins",
+    "role_color": "RED",
+    "role_min_win": 500,
+    "role_max_win": 599
+  },
+  {
+    "role_name": "600+ Wins",
+    "role_color": "RED",
+    "role_min_win": 600,
+    "role_max_win": 699
+  },
+  {
+    "role_name": "700+ Wins",
+    "role_color": "RED",
+    "role_min_win": 700,
+    "role_max_win": 799
+  },
+  {
+    "role_name": "800+ Wins",
+    "role_color": "RED",
+    "role_min_win": 800,
+    "role_max_win": 899
+  },
+  {
+    "role_name": "900+ Wins",
+    "role_color": "RED",
+    "role_min_win": 900,
+    "role_max_win": 999
+  },
+  {
+    "role_name": "1000+ Wins",
+    "role_color": "RED",
+    "role_min_win": 1000,
+    "role_max_win": 999999
+  }
+]
