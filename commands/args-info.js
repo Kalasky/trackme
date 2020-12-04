@@ -1,7 +1,8 @@
 module.exports = {
   name: "args-info",
+  syntax: "!args-info",
   description: "Information about the arguments provided.",
-  include: false,
+  include: true,
   args: true,
   execute(message, args) {
     if (args[0] === "foo") {

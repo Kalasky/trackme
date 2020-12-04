@@ -2,9 +2,11 @@ let Player = require("../models/player");
 const Discord = require("discord.js");
 const API = require("call-of-duty-api")();
 
+// command is obsolete due to new sign in flow using direct messaging for user privacy.
+
 module.exports = {
   name: "signin",
-  description: "",
+  description: "obsolete",
   syntax: "!signin <email> <password>",
   include: true,
   args: true,

@@ -3,7 +3,7 @@ let Player = require("../models/player");
 const kdRoles = require("../roles.json");
 const winRoles = require("../win_roles.json");
 const API = require("call-of-duty-api")();
-var cron = require("node-cron");
+const cron = require("node-cron");
 
 module.exports = {
   name: "assignrole",

@@ -79,9 +79,9 @@ module.exports = {
                         }
                       );
 
-                      function userMyCodAccountData(query) {
+                      Player.find({}, function (err, data) {
                         Player.findOneAndUpdate(
-                          query,
+                          data.discordID,
                           {
                             $set: {
                               userAccountPlatforms: platforms,
@@ -95,8 +95,7 @@ module.exports = {
                             }
                           }
                         );
-                      }
-                      userMyCodAccountData();
+                      });
 
                       // console.log(data.titleIdentities[0].username);
                     })
@@ -202,24 +201,37 @@ module.exports = {
                             (loggedIn =
                               true && checkTag == true && checkPlat == true)
                           ) {
-                            function trackmeData(query) {
-                              Player.findOneAndUpdate(
-                                query,
-                                {
-                                  $set: {
-                                    platform: platform,
-                                    gamertag: gamertag,
-                                  },
+                            // Player.findOneAndUpdate(
+                            //   {
+                            //     $set: {
+                            //       platform: platform,
+                            //       gamertag: gamertag,
+                            //     },
+                            //   },
+                            //   function callback(err) {
+                            //     if (err) {
+                            //       // Show errors
+                            //       console.log(err);
+                            //     }
+                            //   }
+                            // );
+
+                            Player.findOneAndUpdate(
+                              data.discordID,
+                              {
+                                $set: {
+                                  platform: platform,
+                                  gamertag: gamertag,
                                 },
-                                function callback(err, doc) {
-                                  if (err) {
-                                    // Show errors
-                                    console.log(err);
-                                  }
+                              },
+                              function callback(err, doc) {
+                                if (err) {
+                                  // Show errors
+                                  console.log(err);
                                 }
-                              );
-                            }
-                            trackmeData();
+                              }
+                            );
+
                             assignRoleNow.execute(message); // runs code from assignrole-now imported module
                             const completedPromptEmbed = new Discord.MessageEmbed()
                               .setColor("#4BB543")
@@ -233,23 +245,20 @@ module.exports = {
                               completedPromptEmbed // completed prompt message
                             );
 
-                            function endOfPrompt(query) {
-                              Player.findOneAndUpdate(
-                                query,
-                                {
-                                  $set: {
-                                    inPrompt: false,
-                                  },
+                            Player.findOneAndUpdate(
+                              data.discordID,
+                              {
+                                $set: {
+                                  inPrompt: false,
                                 },
-                                function callback(err, doc) {
-                                  if (err) {
-                                    // Show errors
-                                    console.log(err);
-                                  }
+                              },
+                              function callback(err, doc) {
+                                if (err) {
+                                  // Show errors
+                                  console.log(err);
                                 }
-                              );
-                            }
-                            endOfPrompt();
+                              }
+                            );
                           } else {
                             const tagPlatformErrorEmbed = new Discord.MessageEmbed()
                               .setColor("#FF0000")

@@ -2,6 +2,7 @@ require("dotenv").config();
 const fs = require("fs");
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
+const { MongoClient } = require("mongodb");
 const API = require("call-of-duty-api")();
 const { prefix, token } = require("./config.json");
 const client = new Discord.Client();
@@ -17,7 +18,7 @@ for (const file of commandFiles) {
 }
 
 mongoose
-  .connect("mongodb://localhost/warzone-data", {
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useFindAndModify: false,
     useUnifiedTopology: true,

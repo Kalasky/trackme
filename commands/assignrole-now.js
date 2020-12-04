@@ -30,37 +30,41 @@ module.exports = {
        * @return none
        */
       let savePlayerKDRoleRecord = (query, role) => {
-        Player.findOneAndUpdate(
-          query,
-          {
-            $set: {
-              currentKDRole: role,
+        Player.find({}, function (err, data) {
+          Player.findOneAndUpdate(
+            query,
+            {
+              $set: {
+                currentKDRole: role,
+              },
             },
-          },
-          function callback(err, doc) {
-            if (err) {
-              // Show errors
-              console.log(err);
+            function callback(err, doc) {
+              if (err) {
+                // Show errors
+                console.log(err);
+              }
             }
-          }
-        );
+          );
+        });
       };
 
       let savePlayerWinRoleRecord = (query, role) => {
-        Player.findOneAndUpdate(
-          query,
-          {
-            $set: {
-              currentWinRole: role,
+        Player.find({}, function (err, data) {
+          Player.findOneAndUpdate(
+            query,
+            {
+              $set: {
+                currentWinRole: role,
+              },
             },
-          },
-          function callback(err, doc) {
-            if (err) {
-              // Show errors
-              console.log(err);
+            function callback(err, doc) {
+              if (err) {
+                // Show errors
+                console.log(err);
+              }
             }
-          }
-        );
+          );
+        });
       };
       //--------------------------------------------//
 

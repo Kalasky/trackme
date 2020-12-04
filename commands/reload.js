@@ -1,7 +1,8 @@
 module.exports = {
   name: "reload",
+  syntax: "!reload",
   description: "Reloads a command",
-  include: false,
+  include: true,
   execute(message, args) {
     if (!message.member.hasPermission("ADMINISTRATOR")) {
       message.channel.send("You must be an admin to execute this command.");
