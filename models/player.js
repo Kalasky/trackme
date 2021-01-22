@@ -6,13 +6,13 @@ const playerSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: true,
-      // unique: true,
+      unique: true,
     },
     gamertag: {
       type: String,
       trim: true,
       required: true,
-      // unique: true,
+      unique: true,
     },
     platform: {
       type: String,

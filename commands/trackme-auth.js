@@ -43,12 +43,59 @@ module.exports = {
             let messageContent = messages.first().content;
             let arrayIndex = messageContent.split(" ");
 
+            const duplicationErrorEmbed = new Discord.MessageEmbed()
+              .setColor("#4BB543")
+              .setTitle(
+                "Duplication error! Call of Duty User or Discord account already exists in database."
+              )
+
+              .setThumbnail("https://i.imgur.com/pfXAuiY.png");
+
+            const loginSuccessEmbed = new Discord.MessageEmbed()
+              .setColor("#4BB543")
+              .setTitle("Login Successful")
+              .setDescription(
+                "Enter in your gamertag with the corresponding platform. If you enter invalid credentials you have a maximum of three tries before the bot exits the prompt."
+              )
+              .addFields(
+                {
+                  name: "Syntax:",
+                  value: "`<Gamertag> <Platform>`",
+                  inline: true,
+                },
+
+                {
+                  name: "Syntax if gamertag contains spaces:",
+                  value: '`<"Gamer tag"> <Platform>`',
+                  inline: true,
+                },
+                {
+                  name: "Platforms:",
+                  value:
+                    "Battlenet: `battle`, Playstation: `psn`, Xbox: `xbl`, Activision: `acti`",
+                  inline: false,
+                },
+                {
+                  name: "Not sure about which gamertag and platform to track?",
+                  value:
+                    "Login to https://profile.callofduty.com/cod/login then hover over your name on the top right and click **Linked Accounts.** There you will see a list of your gamertags with corresponding platforms.",
+                  inline: false,
+                }
+              )
+              .setThumbnail("https://i.imgur.com/pfXAuiY.png");
+
+            // if (err.name === "MongoError" && err.code === 11000) {
+            //   // Duplicate username
+            //   message.author.send(duplicationErrorEmbed);
+            // }
+
             API.login(arrayIndex[0], arrayIndex[1])
               .then((data) => {
                 console.log(data);
                 // Checking if the login credentials submitted by the user are valid.
                 if (API.isLoggedIn() == true) {
-                  console.log(API.isLoggedIn());
+                  console.log("isLoggedIn value:", API.isLoggedIn());
+                  // if the login is successful - create user modal in db
                   Player.create({
                     discordID: `${message.author.id}`,
                     loggedIn: true,
@@ -57,8 +104,213 @@ module.exports = {
                     currentRole: "TBD",
                     userAccountPlatforms: "TBD",
                     userAccountGamertags: "TBD",
+                    currentKDRole: "TBD",
+                    currentWinRole: "TBD",
                     inPrompt: true,
-                  });
+                  })
+                    .then(function (data) {
+                      console.log(data);
+                      message.author.send(loginSuccessEmbed).then((data) => {
+                        let authorChannel = data.channel;
+                        const filter = (m) => message.author.id === m.author.id;
+
+                        authorChannel
+                          .awaitMessages(filter, {
+                            time: 120000,
+                            max: 1,
+                            errors: ["time"],
+                          })
+                          .then((messages) => {
+                            console.log(messages.first().content);
+                            let messageContent = messages.first().content;
+                            let arrayIndex = messageContent.split(" ");
+
+                            let pattern = /".*?"/g;
+                            let output = pattern.exec(arrayIndex);
+                            let gamertag;
+                            let count;
+                            let platform;
+
+                            if (output == null) {
+                              gamertag = arrayIndex[0];
+                              // console.log(`gamertag: ${gamertag}`);
+
+                              platform = arrayIndex[1];
+                              // console.log(`platform: ${platform}`);
+                            } else {
+                              gamertag = output[0]
+                                .replace(/,/g, " ")
+                                .slice(1, -1);
+                              // console.log(`gamertag: ${gamertag}`);
+                              count = output[0].split(" ").length;
+                              platform = arrayIndex[arrayIndex.length - 1];
+                              // console.log(`platform: ${platform}`);
+                            }
+
+                            Player.find({}, function (err, data) {
+                              console.log(err);
+
+                              function checkGamertag(arr, val) {
+                                return arr.some(function (arrVal) {
+                                  return val == arrVal;
+                                });
+                              }
+                              const gamertags = data[0].userAccountGamertags;
+
+                              function checkPlatform(arr, val) {
+                                return arr.some(function (arrVal) {
+                                  return val == arrVal;
+                                });
+                              }
+                              const platforms = data[0].userAccountPlatforms;
+
+                              // Checking if gamertag input matches one of the DB values
+                              // gamertags is array of all user's gamertags
+                              let checkTag = checkGamertag(gamertags, gamertag);
+                              console.log(checkTag);
+
+                              // Checking if platform input matches one of the DB values
+                              // platforms is array of all user's gamertags
+                              let checkPlat = checkPlatform(
+                                platforms,
+                                platform
+                              );
+                              console.log(checkPlat);
+
+                              if (
+                                (loggedIn =
+                                  true && checkTag == true && checkPlat == true)
+                              ) {
+                                // Player.findOneAndUpdate(
+                                //   {
+                                //     $set: {
+                                //       platform: platform,
+                                //       gamertag: gamertag,
+                                //     },
+                                //   },
+                                //   function callback(err) {
+                                //     if (err) {
+                                //       // Show errors
+                                //       console.log(err);
+                                //     }
+                                //   }
+                                // );
+
+                                Player.findOneAndUpdate(
+                                  data.discordID,
+                                  {
+                                    $set: {
+                                      platform: platform,
+                                      gamertag: gamertag,
+                                    },
+                                  },
+                                  function callback(err, doc) {
+                                    if (err) {
+                                      // Show errors
+                                      console.log(err);
+                                    }
+                                  }
+                                );
+
+                                assignRoleNow.execute(message); // runs code from assignrole-now imported module
+                                const completedPromptEmbed = new Discord.MessageEmbed()
+                                  .setColor("#4BB543")
+                                  .setTitle("Prompt Completed!")
+                                  .setDescription(
+                                    "Your data is now being tracked. Check out your roles in the server!"
+                                  )
+                                  .setThumbnail(
+                                    "https://i.imgur.com/pfXAuiY.png"
+                                  );
+
+                                message.author.send(
+                                  completedPromptEmbed // completed prompt message
+                                );
+
+                                Player.findOneAndUpdate(
+                                  data.discordID,
+                                  {
+                                    $set: {
+                                      inPrompt: false,
+                                    },
+                                  },
+                                  function callback(err, doc) {
+                                    if (err) {
+                                      // Show errors
+                                      console.log(err);
+                                    }
+                                  }
+                                );
+                              } else {
+                                const tagPlatformErrorEmbed = new Discord.MessageEmbed()
+                                  .setColor("#FF0000")
+                                  .setTitle("Invalid Gamertag / Platform")
+                                  .setDescription(
+                                    "The Gamertag and/or platform submitted is invalid. **Gamertag and platform is case senstive.**"
+                                  )
+                                  .addFields(
+                                    {
+                                      name: "Syntax:",
+                                      value: "`<Gamertag> <Platform>`",
+                                      inline: true,
+                                    },
+                                    {
+                                      name:
+                                        "Syntax if gamertag contains spaces:",
+                                      value: '`<"Gamer tag"> <Platform>`',
+                                      inline: true,
+                                    },
+                                    {
+                                      name: "Platforms:",
+                                      value:
+                                        "Battlenet: `battle`, Playstation: `psn`, Xbox: `xbl`, Activision: `acti`",
+                                      inline: false,
+                                    },
+                                    {
+                                      name:
+                                        "Not sure about which gamertag and platform to track?",
+                                      value:
+                                        "Login to https://profile.callofduty.com/cod/login then hover over your name on the top right and click **Linked Accounts.** There you will see a list of your gamertags with corresponding platforms.",
+                                      inline: false,
+                                    }
+                                  )
+                                  .setThumbnail(
+                                    "https://i.imgur.com/I6hxLXI.png"
+                                  );
+
+                                message.author.send(tagPlatformErrorEmbed);
+                              }
+                            });
+                          })
+                          .catch(() => {
+                            const inputTrackErrorEmbed = new Discord.MessageEmbed()
+                              .setColor("#FF0000")
+                              .setTitle(
+                                "Ran Out of Time! The Prompt Automatically Expired"
+                              )
+                              .setDescription(
+                                "You did not enter any input within 2 minutes when asked to enter your gamertag and corresponding platform! The bot has exited the prompt, you can run `!trackme` in the main server to try again."
+                              )
+                              .setThumbnail("https://i.imgur.com/I6hxLXI.png");
+                            message.author.send(
+                              // runs if user does not enter credentials when prompted to enter gamertag and platform
+                              inputTrackErrorEmbed
+                            );
+                          });
+                      });
+                    })
+                    // when creating the user modal upon signup, check for duplication errors in db
+                    .catch(function (err) {
+                      if (err) {
+                        if (err.name === "MongoError" && err.code === 11000) {
+                          return message.author.send(duplicationErrorEmbed);
+                        }
+
+                        // Some other error
+                        return message.author.send(err.message);
+                      }
+                    });
+
                   // if sign-in 200 grab user's identities
                   API.getLoggedInIdentities()
                     .then((data) => {
@@ -88,7 +340,7 @@ module.exports = {
                               userAccountGamertags: usernames,
                             },
                           },
-                          function callback(err, doc) {
+                          function callback(err) {
                             if (err) {
                               // Show errors
                               console.log(err);
@@ -100,219 +352,6 @@ module.exports = {
                       // console.log(data.titleIdentities[0].username);
                     })
                     .catch((err) => console.log(err));
-
-                  const loginSuccessEmbed = new Discord.MessageEmbed()
-                    .setColor("#4BB543")
-                    .setTitle("Login Successful")
-                    .setDescription(
-                      "Enter in your gamertag with the corresponding platform. If you enter invalid credentials you have a maximum of three tries before the bot exits the prompt."
-                    )
-                    .addFields(
-                      {
-                        name: "Syntax:",
-                        value: "`<Gamertag> <Platform>`",
-                        inline: true,
-                      },
-
-                      {
-                        name: "Syntax if gamertag contains spaces:",
-                        value: '`<"Gamer tag"> <Platform>`',
-                        inline: true,
-                      },
-                      {
-                        name: "Platforms:",
-                        value:
-                          "Battlenet: `battle`, Playstation: `psn`, Xbox: `xbl`, Activision: `acti`",
-                        inline: false,
-                      },
-                      {
-                        name:
-                          "Not sure about which gamertag and platform to track?",
-                        value:
-                          "Login to https://profile.callofduty.com/cod/login then hover over your name on the top right and click **Linked Accounts.** There you will see a list of your gamertags with corresponding platforms.",
-                        inline: false,
-                      }
-                    )
-                    .setThumbnail("https://i.imgur.com/pfXAuiY.png");
-
-                  message.author.send(loginSuccessEmbed).then((data) => {
-                    let authorChannel = data.channel;
-                    const filter = (m) => message.author.id === m.author.id;
-
-                    authorChannel
-                      .awaitMessages(filter, {
-                        time: 120000,
-                        max: 1,
-                        errors: ["time"],
-                      })
-                      .then((messages) => {
-                        console.log(messages.first().content);
-                        let messageContent = messages.first().content;
-                        let arrayIndex = messageContent.split(" ");
-
-                        let pattern = /".*?"/g;
-                        let output = pattern.exec(arrayIndex);
-                        let gamertag;
-                        let count;
-                        let platform;
-
-                        if (output == null) {
-                          gamertag = arrayIndex[0];
-                          // console.log(`gamertag: ${gamertag}`);
-
-                          platform = arrayIndex[1];
-                          // console.log(`platform: ${platform}`);
-                        } else {
-                          gamertag = output[0].replace(/,/g, " ").slice(1, -1);
-                          // console.log(`gamertag: ${gamertag}`);
-                          count = output[0].split(" ").length;
-                          platform = arrayIndex[arrayIndex.length - 1];
-                          // console.log(`platform: ${platform}`);
-                        }
-
-                        Player.find({}, function (err, data) {
-                          console.log(err);
-
-                          function checkGamertag(arr, val) {
-                            return arr.some(function (arrVal) {
-                              return val == arrVal;
-                            });
-                          }
-                          const gamertags = data[0].userAccountGamertags;
-
-                          function checkPlatform(arr, val) {
-                            return arr.some(function (arrVal) {
-                              return val == arrVal;
-                            });
-                          }
-                          const platforms = data[0].userAccountPlatforms;
-
-                          // Checking if gamertag input matches one of the DB values
-                          // gamertags is array of all user's gamertags
-                          let checkTag = checkGamertag(gamertags, gamertag);
-                          console.log(checkTag);
-
-                          // Checking if platform input matches one of the DB values
-                          // platforms is array of all user's gamertags
-                          let checkPlat = checkPlatform(platforms, platform);
-                          console.log(checkPlat);
-
-                          if (
-                            (loggedIn =
-                              true && checkTag == true && checkPlat == true)
-                          ) {
-                            // Player.findOneAndUpdate(
-                            //   {
-                            //     $set: {
-                            //       platform: platform,
-                            //       gamertag: gamertag,
-                            //     },
-                            //   },
-                            //   function callback(err) {
-                            //     if (err) {
-                            //       // Show errors
-                            //       console.log(err);
-                            //     }
-                            //   }
-                            // );
-
-                            Player.findOneAndUpdate(
-                              data.discordID,
-                              {
-                                $set: {
-                                  platform: platform,
-                                  gamertag: gamertag,
-                                },
-                              },
-                              function callback(err, doc) {
-                                if (err) {
-                                  // Show errors
-                                  console.log(err);
-                                }
-                              }
-                            );
-
-                            assignRoleNow.execute(message); // runs code from assignrole-now imported module
-                            const completedPromptEmbed = new Discord.MessageEmbed()
-                              .setColor("#4BB543")
-                              .setTitle("Prompt Completed!")
-                              .setDescription(
-                                "Your data is now being tracked. Check out your roles in the server!"
-                              )
-                              .setThumbnail("https://i.imgur.com/pfXAuiY.png");
-
-                            message.author.send(
-                              completedPromptEmbed // completed prompt message
-                            );
-
-                            Player.findOneAndUpdate(
-                              data.discordID,
-                              {
-                                $set: {
-                                  inPrompt: false,
-                                },
-                              },
-                              function callback(err, doc) {
-                                if (err) {
-                                  // Show errors
-                                  console.log(err);
-                                }
-                              }
-                            );
-                          } else {
-                            const tagPlatformErrorEmbed = new Discord.MessageEmbed()
-                              .setColor("#FF0000")
-                              .setTitle("Invalid Gamertag / Platform")
-                              .setDescription(
-                                "The Gamertag and/or platform submitted is invalid. **Gamertag and platform is case senstive.**"
-                              )
-                              .addFields(
-                                {
-                                  name: "Syntax:",
-                                  value: "`<Gamertag> <Platform>`",
-                                  inline: true,
-                                },
-                                {
-                                  name: "Syntax if gamertag contains spaces:",
-                                  value: '`<"Gamer tag"> <Platform>`',
-                                  inline: true,
-                                },
-                                {
-                                  name: "Platforms:",
-                                  value:
-                                    "Battlenet: `battle`, Playstation: `psn`, Xbox: `xbl`, Activision: `acti`",
-                                  inline: false,
-                                },
-                                {
-                                  name:
-                                    "Not sure about which gamertag and platform to track?",
-                                  value:
-                                    "Login to https://profile.callofduty.com/cod/login then hover over your name on the top right and click **Linked Accounts.** There you will see a list of your gamertags with corresponding platforms.",
-                                  inline: false,
-                                }
-                              )
-                              .setThumbnail("https://i.imgur.com/I6hxLXI.png");
-
-                            message.author.send(tagPlatformErrorEmbed);
-                          }
-                        });
-                      })
-                      .catch(() => {
-                        const inputTrackErrorEmbed = new Discord.MessageEmbed()
-                          .setColor("#FF0000")
-                          .setTitle(
-                            "Ran Out of Time! The Prompt Automatically Expired"
-                          )
-                          .setDescription(
-                            "You did not enter any input within 2 minutes when asked to enter your gamertag and corresponding platform! The bot has exited the prompt, you can run `!trackme` in the main server to try again."
-                          )
-                          .setThumbnail("https://i.imgur.com/I6hxLXI.png");
-                        message.author.send(
-                          // runs if user does not enter credentials when prompted to enter gamertag and platform
-                          inputTrackErrorEmbed
-                        );
-                      });
-                  });
                 }
               })
               .catch((err) => {
@@ -321,7 +360,7 @@ module.exports = {
                   .setColor("#FF0000")
                   .setTitle("Unauthorized. Incorrect Username or Password")
                   .setDescription(
-                    "Login failed, you have two more attempts before this session automatically exits."
+                    "Login failed, you have two more attempts before this session automatically exits.\n\n**If you have 2FA enabled on you call of duty account, you will get this error message. You can enable it after successfully signing up."
                   )
                   .addFields(
                     { name: "Syntax:", value: "`<email> <password>`" },
