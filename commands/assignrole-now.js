@@ -77,7 +77,6 @@ module.exports = {
               let kd = warzoneData.br.kdRatio.toFixed(6).slice(0, -4);
               let kills = warzoneData.br.kills;
               let wins = warzoneData.br.wins;
-              console.log(wins);
               // Display player record in console
               console.log(
                 `Discord ID: ${player.discordID}\nGamertag: ${player.gamertag}\nPlatform: ${player.platform}\nKD: ${kd}\nKills: ${kills}\nWins: ${wins}`
