@@ -8,7 +8,7 @@ const cron = require("node-cron");
 module.exports = {
   name: "assignrole",
   cooldown: 5,
-  description: "Assigns KD roles to currently tracked users every 8 hours.",
+  description: "Scan currently tracked users every 24 hours.",
   syntax: "!assignrole",
   include: true,
   execute(message, args) {
@@ -89,7 +89,7 @@ module.exports = {
               );
 
               // Access discord member data
-              cron.schedule("0 */8 * * *", () => {
+              cron.schedule("0 */24 * * *", () => {
                 message.guild.members
                   .fetch(player.discordID)
                   .then((memberData) => {

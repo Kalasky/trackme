@@ -8,7 +8,7 @@ module.exports = {
   name: "signin",
   description: "obsolete",
   syntax: "!signin <email> <password>",
-  include: true,
+  include: false,
   args: true,
   execute(message, args) {
     let email, password;

@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "bl": "^4.1.0",
-    "call-of-duty-api": "^1.2.8",
+    "call-of-duty-api": "^1.3.2",
     "discord.js": "^12.1.1",
     "dotenv": "^8.2.0",
     "mongodb": "^3.6.0",
