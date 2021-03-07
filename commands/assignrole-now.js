@@ -3,6 +3,7 @@ let Player = require("../models/player");
 const kdRoles = require("../roles.json");
 const winRoles = require("../win_roles.json");
 const API = require("call-of-duty-api")();
+const Discord = require("discord.js");
 
 module.exports = {
   execute(message, args) {
@@ -30,41 +31,37 @@ module.exports = {
        * @return none
        */
       let savePlayerKDRoleRecord = (query, role) => {
-        Player.find({}, function (err, data) {
-          Player.findOneAndUpdate(
-            query,
-            {
-              $set: {
-                currentKDRole: role,
-              },
+        Player.findOneAndUpdate(
+          query,
+          {
+            $set: {
+              currentKDRole: role,
             },
-            function callback(err, doc) {
-              if (err) {
-                // Show errors
-                console.log(err);
-              }
+          },
+          function callback(err, doc) {
+            if (err) {
+              // Show errors
+              console.log(err);
             }
-          );
-        });
+          }
+        );
       };
 
       let savePlayerWinRoleRecord = (query, role) => {
-        Player.find({}, function (err, data) {
-          Player.findOneAndUpdate(
-            query,
-            {
-              $set: {
-                currentWinRole: role,
-              },
+        Player.findOneAndUpdate(
+          query,
+          {
+            $set: {
+              currentWinRole: role,
             },
-            function callback(err, doc) {
-              if (err) {
-                // Show errors
-                console.log(err);
-              }
+          },
+          function callback(err, doc) {
+            if (err) {
+              // Show errors
+              console.log(err);
             }
-          );
-        });
+          }
+        );
       };
       //--------------------------------------------//
 
@@ -93,11 +90,7 @@ module.exports = {
 
                     // Update player db record
                     savePlayerWinRoleRecord(
-                      {
-                        _id: {
-                          $eq: player._id,
-                        },
-                      },
+                      { discordID: player.discordID },
                       winRoles[0]["role_name"]
                     );
                   } else if (
@@ -109,11 +102,7 @@ module.exports = {
                     );
                     // Update player db record
                     savePlayerWinRoleRecord(
-                      {
-                        _id: {
-                          $eq: player._id,
-                        },
-                      },
+                      { discordID: player.discordID },
                       winRoles[1]["role_name"]
                     );
                     /**
@@ -139,11 +128,7 @@ module.exports = {
                         memberData.roles.remove(getRole(player.currentWinRole));
                         // Update player record on db
                         savePlayerWinRoleRecord(
-                          {
-                            _id: {
-                              $eq: player._id,
-                            },
-                          },
+                          { discordID: player.discordID },
                           winRoles[i]["role_name"]
                         );
                         // Apply new role
@@ -161,11 +146,7 @@ module.exports = {
 
                     // Update player db record
                     savePlayerKDRoleRecord(
-                      {
-                        _id: {
-                          $eq: player._id,
-                        },
-                      },
+                      { discordID: player.discordID },
                       kdRoles[0]["role_name"]
                     );
                     /**
@@ -192,11 +173,7 @@ module.exports = {
 
                         // Update player record on db
                         savePlayerKDRoleRecord(
-                          {
-                            _id: {
-                              $eq: player._id,
-                            },
-                          },
+                          { discordID: player.discordID },
                           kdRoles[i]["role_name"]
                         );
                         // Apply new role
@@ -208,9 +185,15 @@ module.exports = {
                 });
             })
             .catch((err) => {
+              const roleAssignmentError = new Discord.MessageEmbed()
+                .setColor("#FF0000")
+                .setTitle(err)
+                .setDescription("Please contact an administrator.")
+                .setThumbnail("https://i.imgur.com/I6hxLXI.png");
               // Add for display error message on API
               if (err != undefined) {
                 console.log("API error:", err);
+                message.author.send(roleAssignmentError);
               }
             });
         });

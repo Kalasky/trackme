@@ -2,11 +2,11 @@ let Player = require("../models/player");
 const Discord = require("discord.js");
 
 module.exports = {
-  name: "trackme",
+  name: "test",
   description:
     "Tracks users data across various platforms\nIf your platform ID contains spaces wrap it in quotes.",
   syntax: "!trackme <platform ID> <platform>",
-  include: true,
+  include: false,
   args: true,
   execute(message, args) {
     let pattern = /".*?"/g;

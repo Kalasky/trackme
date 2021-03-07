@@ -2,10 +2,9 @@ let Player = require("../models/player");
 const Discord = require("discord.js");
 const API = require("call-of-duty-api")();
 let assignRoleNow = require("./assignrole-now");
-const player = require("../models/player");
 
 module.exports = {
-  name: "test",
+  name: "trackme",
   description:
     "Tracks users data across various platforms\nIf your platform ID contains spaces wrap it in quotes.",
   syntax: "!trackme",
@@ -22,7 +21,7 @@ module.exports = {
         {
           name: "Why Login?",
           value:
-            "We require authentication for all users. This is to prevent users from having the ability to track themselves as anyone. ",
+            "We require authentication for all users. This is to prevent users from having the ability to track themselves as anyone.",
         },
         { name: "Syntax:", value: "`<email> <password>`" }
       )
@@ -30,12 +29,12 @@ module.exports = {
       .setFooter("We do not store login credentials.");
 
     const duplicationErrorEmbed = new Discord.MessageEmbed()
-      .setColor("#4BB543")
+      .setColor("#FF0000")
       .setTitle(
         "Duplication error! Call of Duty User or Discord account already exists in database."
       )
 
-      .setThumbnail("https://i.imgur.com/pfXAuiY.png");
+      .setThumbnail("https://i.imgur.com/I6hxLXI.png");
 
     const loginSuccessEmbed = new Discord.MessageEmbed()
       .setColor("#4BB543")
@@ -69,6 +68,17 @@ module.exports = {
         }
       )
       .setThumbnail("https://i.imgur.com/pfXAuiY.png");
+
+    const dmWarning = new Discord.MessageEmbed()
+      .setColor("#FF0000")
+      .setTitle("This command must be executed in a server.")
+
+      .setThumbnail("https://i.imgur.com/I6hxLXI.png");
+
+    if (message.channel.type === "dm") {
+      message.author.send(dmWarning);
+      return;
+    }
 
     message.author
       .send(initialPromptEmbed)
