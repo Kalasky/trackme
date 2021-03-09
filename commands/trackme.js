@@ -2,7 +2,7 @@ let Player = require("../models/player");
 const Discord = require("discord.js");
 
 module.exports = {
-  name: "test",
+  name: "trackcmd",
   description:
     "Tracks users data across various platforms\nIf your platform ID contains spaces wrap it in quotes.",
   syntax: "!trackme <platform ID> <platform>",

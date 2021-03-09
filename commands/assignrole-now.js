@@ -1,8 +1,8 @@
 require("dotenv").config();
-let Player = require("../models/player");
+const Player = require("../models/player");
 const kdRoles = require("../roles.json");
 const winRoles = require("../win_roles.json");
-const API = require("call-of-duty-api")();
+const API = require("call-of-duty-api")({ debug: 1 });
 const Discord = require("discord.js");
 
 module.exports = {
@@ -63,12 +63,10 @@ module.exports = {
           }
         );
       };
-      //--------------------------------------------//
 
       Player.find({}, function (err, docs) {
         // Run through each record
         docs.map((player) => {
-          // FIX: update platforms because its not using API.platforms
           API.MWBattleData(player.gamertag, API.platforms[player.platform])
             .then((warzoneData) => {
               let kd = warzoneData.br.kdRatio.toFixed(6).slice(0, -4);
@@ -90,7 +88,8 @@ module.exports = {
 
                     // Update player db record
                     savePlayerWinRoleRecord(
-                      { discordID: player.discordID },
+                      { _id: player._id },
+                      // { discordID: player.discordID },
                       winRoles[0]["role_name"]
                     );
                   } else if (
@@ -102,7 +101,8 @@ module.exports = {
                     );
                     // Update player db record
                     savePlayerWinRoleRecord(
-                      { discordID: player.discordID },
+                      { _id: player._id },
+                      // { discordID: player.discordID },
                       winRoles[1]["role_name"]
                     );
                     /**
@@ -128,7 +128,8 @@ module.exports = {
                         memberData.roles.remove(getRole(player.currentWinRole));
                         // Update player record on db
                         savePlayerWinRoleRecord(
-                          { discordID: player.discordID },
+                          { _id: player._id },
+                          // { discordID: player.discordID },
                           winRoles[i]["role_name"]
                         );
                         // Apply new role
@@ -146,7 +147,8 @@ module.exports = {
 
                     // Update player db record
                     savePlayerKDRoleRecord(
-                      { discordID: player.discordID },
+                      { _id: player._id },
+                      // { discordID: player.discordID },
                       kdRoles[0]["role_name"]
                     );
                     /**
@@ -173,7 +175,8 @@ module.exports = {
 
                         // Update player record on db
                         savePlayerKDRoleRecord(
-                          { discordID: player.discordID },
+                          { _id: player._id },
+                          // { discordID: player.discordID },
                           kdRoles[i]["role_name"]
                         );
                         // Apply new role
