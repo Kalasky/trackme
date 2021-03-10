@@ -311,6 +311,17 @@ module.exports = {
                                   message.author.id
                                 );
 
+                                if (checkTag == false || checkPlat == false) {
+                                  Player.deleteOne(
+                                    { discordID: player.discordID },
+                                    function (err) {
+                                      if (err) {
+                                        console.log(err);
+                                      }
+                                    }
+                                  );
+                                }
+
                                 if (
                                   // if user submitted data matches the gamertags and platforms listed in-
                                   // their call of duty account, execute assignRoleNow
