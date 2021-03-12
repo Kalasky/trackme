@@ -838,7 +838,7 @@ module.exports = {
                   .setColor("#FF0000")
                   .setTitle("Unauthorized. Incorrect Username or Password")
                   .setDescription(
-                    "Login failed.\n\n**This error message may be appearing if you have Two Factor Authentication (2FA) enabled for your call of duty account. You can enable it again after successfully signing up.**"
+                    "Login failed. Use `!trackme` in the main server to try again.\n\n**This error message may be appearing if you have Two Factor Authentication (2FA) enabled for your call of duty account. You can enable it again after successfully signing up.**"
                   )
                   .addFields(
                     { name: "Syntax:", value: "`<email> <password>`" },
