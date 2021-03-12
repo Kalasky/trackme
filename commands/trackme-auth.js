@@ -17,7 +17,7 @@ module.exports = {
       .setColor("#00C5CD")
       .setTitle("Enter Your Email and Password")
       .setDescription(
-        "Enter your login details from https://profile.callofduty.com/cod/login\n\nYou have three attempts before this session automatically exits."
+        "Enter your login details from https://profile.callofduty.com/cod/login"
       )
       .addFields(
         {
