@@ -838,12 +838,12 @@ module.exports = {
                   .setColor("#FF0000")
                   .setTitle("Unauthorized. Incorrect Username or Password")
                   .setDescription(
-                    "Login failed, you have two more attempts before this session automatically exits.\n\n**This error message may also be appearing if you have Two Factor Authentication (2FA) enabled for your call of duty account. You can enable it after successfully signing up.**"
+                    "Login failed.\n\n**This error message may be appearing if you have Two Factor Authentication (2FA) enabled for your call of duty account. You can enable it again after successfully signing up.**"
                   )
                   .addFields(
                     { name: "Syntax:", value: "`<email> <password>`" },
                     {
-                      name: "Forget Password?",
+                      name: "Forgot Password?",
                       value:
                         "Click the following link to reset it: https://profile.callofduty.com/cod/forgotPassword",
                     }
