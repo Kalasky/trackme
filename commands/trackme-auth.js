@@ -33,7 +33,7 @@ module.exports = {
     const duplicationErrorEmbed = new Discord.MessageEmbed()
       .setColor("#FF0000")
       .setTitle(
-        "Duplication error! Call of Duty User or Discord account already exists in database."
+        "Duplication error! This Call of Duty user already exists in the database."
       )
 
       .setThumbnail("https://i.imgur.com/I6hxLXI.png");
@@ -41,9 +41,7 @@ module.exports = {
     const loginSuccessEmbed = new Discord.MessageEmbed()
       .setColor("#4BB543")
       .setTitle("Login Successful")
-      .setDescription(
-        "Enter in your gamertag with the corresponding platform. If you enter invalid credentials you have a maximum of three tries before the bot exits the prompt."
-      )
+      .setDescription("Enter in your gamertag with the corresponding platform.")
       .addFields(
         {
           name: "Syntax:",
@@ -333,17 +331,42 @@ module.exports = {
                                   console.log(player.discordID);
                                   // console.log(player);
                                   Player.findOneAndUpdate(
-                                    { discordID: player.discordID },
+                                    { _id: player._id },
                                     {
                                       $set: {
                                         platform: platform,
                                         gamertag: gamertag,
                                       },
                                     },
-                                    function callback(err, doc) {
+                                    function callback(err) {
                                       if (err) {
                                         // Show errors
                                         console.log(err);
+                                        if (err) {
+                                          if (
+                                            err.name === "MongoError" &&
+                                            err.code === 11000
+                                          ) {
+                                            console.log(err);
+                                            message.author.send(
+                                              duplicationErrorEmbed
+                                            );
+
+                                            Player.deleteOne(
+                                              // if duplication key error, delete the current user from db
+                                              { _id: player._id },
+                                              function (err) {
+                                                if (err) {
+                                                  console.log(err);
+                                                }
+                                              }
+                                            );
+                                          }
+                                          // Some other error
+                                          return message.author.send(
+                                            err.message
+                                          );
+                                        }
                                       }
                                     }
                                   );
