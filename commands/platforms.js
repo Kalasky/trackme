@@ -13,12 +13,12 @@ module.exports = {
       .setDescription(
         "Xbox: `xbl`\nPlayStation: `psn`\nBattle.net: `battle`\nActivision: `acti`"
       )
-      .setFooter("This message will automatically delete in 15 seconds");
+      .setFooter("This message will automatically delete in 30 seconds");
 
     message.channel
       .send(embed)
       .then((msg) => {
-        msg.delete({ timeout: 15000 });
+        msg.delete({ timeout: 30000 });
       })
       .catch((err) => {
         console.log(err);
