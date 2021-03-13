@@ -33,7 +33,7 @@ module.exports = {
     const duplicationErrorEmbed = new Discord.MessageEmbed()
       .setColor("#FF0000")
       .setTitle(
-        "Duplication error! This Call of Duty user already exists in the database."
+        "Duplication error! This Call of Duty user is already being tracked."
       )
 
       .setThumbnail("https://i.imgur.com/I6hxLXI.png");
@@ -113,7 +113,7 @@ module.exports = {
                 //       },
                 //       function callback(err, doc) {
                 //         if (err) {
-                //           // Show errors
+                //
                 //           console.log(err);
                 //         }
                 //       }
@@ -140,7 +140,7 @@ module.exports = {
                 //   },
                 //   function callback(err, doc) {
                 //     if (err) {
-                //       // Show errors
+                //
                 //       console.log(err);
                 //     }
                 //   }
@@ -158,7 +158,7 @@ module.exports = {
                 //       },
                 //       function callback(err, doc) {
                 //         if (err) {
-                //           // Show errors
+                //
                 //           console.log(err);
                 //         }
                 //       }
@@ -178,7 +178,7 @@ module.exports = {
                 //       },
                 //       function callback(err, doc) {
                 //         if (err) {
-                //           // Show errors
+                //
                 //           console.log(err);
                 //         }
                 //       }
@@ -198,7 +198,7 @@ module.exports = {
                 //       },
                 //       function callback(err, doc) {
                 //         if (err) {
-                //           // Show errors
+                //
                 //           console.log(err);
                 //         }
                 //       }
@@ -213,7 +213,6 @@ module.exports = {
                   // if the login is successful - create user modal in db
                   Player.create({
                     discordID: `${message.author.id}`,
-                    loggedIn: true,
                     gamertag:
                       Math.random().toString(36).substring(2, 15) +
                       Math.random().toString(36).substring(2, 15),
@@ -223,7 +222,6 @@ module.exports = {
                     userAccountGamertags: "TBD",
                     currentKDRole: "TBD",
                     currentWinRole: "TBD",
-                    inPrompt: true,
                   })
                     .then(function (player) {
                       // log modal data in terminal
@@ -268,6 +266,7 @@ module.exports = {
                             console.log(player.discordID);
                             // console.log(player);
                             Player.find(
+                              // finding with _id here prevents 11000 error to execute
                               { discordID: player.discordID },
                               function (err, data) {
                                 console.log(err);
@@ -311,7 +310,7 @@ module.exports = {
 
                                 if (checkTag == false || checkPlat == false) {
                                   Player.deleteOne(
-                                    { discordID: player.discordID },
+                                    { _id: player._id },
                                     function (err) {
                                       if (err) {
                                         console.log(err);
@@ -338,384 +337,657 @@ module.exports = {
                                         gamertag: gamertag,
                                       },
                                     },
-                                    function callback(err) {
+                                    function (err) {
                                       if (err) {
-                                        // Show errors
                                         console.log(err);
-                                        if (err) {
-                                          if (
-                                            err.name === "MongoError" &&
-                                            err.code === 11000
-                                          ) {
-                                            console.log(err);
-                                            message.author.send(
-                                              duplicationErrorEmbed
-                                            );
-
-                                            Player.deleteOne(
-                                              // if duplication key error, delete the current user from db
-                                              { _id: player._id },
-                                              function (err) {
-                                                if (err) {
-                                                  console.log(err);
-                                                }
+                                        if (
+                                          err.name === "MongoError" &&
+                                          err.code === 11000
+                                        ) {
+                                          console.log(err);
+                                          Player.deleteOne(
+                                            // if duplication key error, delete the current user from db
+                                            { _id: player._id },
+                                            function (err) {
+                                              if (err) {
+                                                console.log(err);
                                               }
-                                            );
-                                          }
-                                          // Some other error
-                                          return message.author.send(
-                                            err.message
+                                            }
+                                          );
+
+                                          message.author.send(
+                                            duplicationErrorEmbed
                                           );
                                         }
-                                      }
-                                    }
-                                  );
+                                        // Some other error
+                                        return message.author.send(err.message);
+                                      } else if (!err) {
+                                        // setPlatAndTag(
+                                        //   {
+                                        //     _id: {
+                                        //       $eq: data._id,
+                                        //     },
+                                        //   },
+                                        //   gamertag,
+                                        //   platform
+                                        // );
 
-                                  // setPlatAndTag(
-                                  //   {
-                                  //     _id: {
-                                  //       $eq: data._id,
-                                  //     },
-                                  //   },
-                                  //   gamertag,
-                                  //   platform
-                                  // );
+                                        // Common functions
+                                        //--------------------------------------------//
+                                        /**
+                                         * Function to return discord role object based on input string
+                                         *
+                                         * @param roleString
+                                         * @return discord object role
+                                         */
+                                        let getRole = (roleString) => {
+                                          // Find discord role object
+                                          let role = message.guild.roles.cache.find(
+                                            (data) => {
+                                              return data.name == roleString;
+                                            }
+                                          );
+                                          return role;
+                                        };
+                                        /**
+                                         * Function to save current player role to db
+                                         *
+                                         * @param query
+                                         * @param role
+                                         * @return none
+                                         */
+                                        let savePlayerKDRoleRecord = (
+                                          query,
+                                          role,
+                                          log
+                                        ) => {
+                                          Player.findOneAndUpdate(
+                                            query,
+                                            {
+                                              $set: {
+                                                currentKDRole: role,
+                                              },
+                                            },
+                                            function callback(err) {
+                                              if (err) {
+                                                console.log(err);
+                                              }
+                                            }
+                                          ).then((doc) => {
+                                            log;
+                                            if (doc.currentKDRole == "TBD") {
+                                              // Player.deleteOne(
+                                              //   // if kd/win role fields don't update, delete the current user from db
+                                              //   { _id: player._id },
+                                              //   function (err) {
+                                              //     if (err) {
+                                              //       console.log(err);
+                                              //     }
+                                              //   }
+                                              // );
 
-                                  // Common functions
-                                  //--------------------------------------------//
-                                  /**
-                                   * Function to return discord role object based on input string
-                                   *
-                                   * @param roleString
-                                   * @return discord object role
-                                   */
-                                  let getRole = (roleString) => {
-                                    // Find discord role object
-                                    let role = message.guild.roles.cache.find(
-                                      (data) => {
-                                        return data.name == roleString;
-                                      }
-                                    );
-                                    return role;
-                                  };
-                                  /**
-                                   * Function to save current player role to db
-                                   *
-                                   * @param query
-                                   * @param role
-                                   * @return none
-                                   */
-                                  let savePlayerKDRoleRecord = (
-                                    query,
-                                    role
-                                  ) => {
-                                    Player.findOneAndUpdate(
-                                      query,
-                                      {
-                                        $set: {
-                                          currentKDRole: role,
-                                        },
-                                      },
-                                      function callback(err, doc) {
-                                        if (err) {
-                                          // Show errors
-                                          console.log(err);
-                                        }
-                                      }
-                                    );
-                                  };
-
-                                  let savePlayerWinRoleRecord = (
-                                    query,
-                                    role
-                                  ) => {
-                                    Player.findOneAndUpdate(
-                                      query,
-                                      {
-                                        $set: {
-                                          currentWinRole: role,
-                                        },
-                                      },
-                                      function callback(err, doc) {
-                                        if (err) {
-                                          // Show errors
-                                          console.log(err);
-                                        }
-                                      }
-                                    );
-                                  };
-
-                                  Player.find(
-                                    { discordID: player.discordID },
-                                    function (err, docs) {
-                                      console.log(err);
-
-                                      // Run through each record
-                                      docs.map((player) => {
-                                        API.MWBattleData(gamertag, platform)
-                                          .then((warzoneData) => {
-                                            let kd = warzoneData.br.kdRatio
-                                              .toFixed(6)
-                                              .slice(0, -4);
-                                            let kills = warzoneData.br.kills;
-                                            let wins = warzoneData.br.wins;
-                                            // Display player record in console
-                                            console.log(
-                                              `Discord ID: ${player.discordID}\nGamertag: ${gamertag}\nPlatform: ${platform}\nKD: ${kd}\nKills: ${kills}\nWins: ${wins}`
-                                            );
-
-                                            // Access discord member data
-                                            message.guild.members
-                                              .fetch(player.discordID)
-                                              .then((memberData) => {
-                                                if (
-                                                  wins <=
-                                                  winRoles[0]["role_req"]
-                                                ) {
-                                                  memberData.roles.add(
-                                                    getRole(
-                                                      winRoles[0]["role_name"],
-                                                      message
-                                                    )
-                                                  );
-
-                                                  // Update player db record
-                                                  savePlayerWinRoleRecord(
-                                                    // { _id: player._id },
-                                                    {
-                                                      discordID:
-                                                        player.discordID,
-                                                    },
-                                                    winRoles[0]["role_name"]
-                                                  );
-                                                } else if (
-                                                  wins >
-                                                    winRoles[0]["role_req"] &&
-                                                  wins <=
-                                                    winRoles[1]["role_max_win"]
-                                                ) {
-                                                  memberData.roles.add(
-                                                    getRole(
-                                                      winRoles[1]["role_name"],
-                                                      message
-                                                    )
-                                                  );
-                                                  // Update player db record
-                                                  savePlayerWinRoleRecord(
-                                                    // { _id: player._id },
-                                                    {
-                                                      discordID:
-                                                        player.discordID,
-                                                    },
-                                                    winRoles[1]["role_name"]
-                                                  );
-                                                  /**
-                                                   * 1. Add roles then
-                                                   * 2. Update player record on db
-                                                   */
-                                                } else {
-                                                  for (
-                                                    let i = 1;
-                                                    i < winRoles.length;
-                                                    i++
-                                                  ) {
-                                                    // Identify current equivalent role of kd ratio
-                                                    if (
-                                                      wins >=
-                                                        winRoles[i][
-                                                          "role_min_win"
-                                                        ] &&
-                                                      wins <=
-                                                        winRoles[i][
-                                                          "role_max_win"
-                                                        ]
-                                                    ) {
-                                                      // If current role and new identified role is same, break loop by returning false
-                                                      if (
-                                                        player.currentWinRole ==
-                                                          winRoles[i][
-                                                            "role_name"
-                                                          ] &&
-                                                        player.currentWinRole ==
-                                                          memberData._roles
-                                                      ) {
-                                                        return false;
-                                                      }
-
-                                                      // Remove role
-                                                      memberData.roles.remove(
-                                                        getRole(
-                                                          player.currentWinRole
-                                                        )
-                                                      );
-                                                      // Update player record on db
-                                                      savePlayerWinRoleRecord(
-                                                        // { _id: player._id },
-                                                        {
-                                                          discordID:
-                                                            player.discordID,
-                                                        },
-                                                        winRoles[i]["role_name"]
-                                                      );
-                                                      // Apply new role
-                                                      memberData.roles.add(
-                                                        getRole(
-                                                          winRoles[i][
-                                                            "role_name"
-                                                          ]
-                                                        )
-                                                      );
-                                                      break;
-                                                    }
-                                                  }
-                                                }
-
-                                                if (
-                                                  kills <=
-                                                  kdRoles[0]["role_reqKills"]
-                                                ) {
-                                                  // Add role
-                                                  memberData.roles.add(
-                                                    getRole(
-                                                      kdRoles[0]["role_name"],
-                                                      message
-                                                    )
-                                                  );
-
-                                                  // Update player db record
-                                                  savePlayerKDRoleRecord(
-                                                    // { _id: player._id },
-                                                    {
-                                                      discordID:
-                                                        player.discordID,
-                                                    },
-                                                    kdRoles[0]["role_name"]
-                                                  );
-                                                  /**
-                                                   * 1. Add roles then
-                                                   * 2. Update player record on db
-                                                   */
-                                                } else {
-                                                  for (
-                                                    let i = 1;
-                                                    i < kdRoles.length;
-                                                    i++
-                                                  ) {
-                                                    // Identify current equivalent role of kd ratio
-                                                    if (
-                                                      kd >=
-                                                        kdRoles[i][
-                                                          "role_min_kd"
-                                                        ] &&
-                                                      kd <=
-                                                        kdRoles[i][
-                                                          "role_max_kd"
-                                                        ]
-                                                    ) {
-                                                      // If current role and new identified role is same, break loop by returning false
-                                                      if (
-                                                        player.currentKDRole ==
-                                                          kdRoles[i][
-                                                            "role_name"
-                                                          ] &&
-                                                        player.currentKDRole ==
-                                                          memberData._roles
-                                                      ) {
-                                                        return false;
-                                                      }
-
-                                                      // Remove role
-                                                      memberData.roles.remove(
-                                                        getRole(
-                                                          player.currentKDRole
-                                                        )
-                                                      );
-
-                                                      // Update player record on db
-                                                      savePlayerKDRoleRecord(
-                                                        // { _id: player._id },
-                                                        {
-                                                          discordID:
-                                                            player.discordID,
-                                                        },
-                                                        kdRoles[i]["role_name"]
-                                                      );
-                                                      // Apply new role
-                                                      memberData.roles.add(
-                                                        getRole(
-                                                          kdRoles[i][
-                                                            "role_name"
-                                                          ]
-                                                        )
-                                                      );
-                                                      break;
-                                                    }
-                                                  }
-                                                }
-                                              });
-                                          })
-                                          .catch((err) => {
-                                            const roleAssignmentError = new Discord.MessageEmbed()
-                                              .setColor("#FF0000")
-                                              .setTitle(err)
-                                              .setDescription(
-                                                "Please contact an administrator."
-                                              )
-                                              .setThumbnail(
-                                                "https://i.imgur.com/I6hxLXI.png"
-                                              );
-                                            // Add for display error message on API
-                                            if (err != undefined) {
-                                              console.log("API error:", err);
                                               message.author.send(
-                                                roleAssignmentError
+                                                "Your KDR role field was not updated. Run `!trackme` in the main server to try again. If this keeps happening please contact `kal#1234` on Discord."
                                               );
                                             }
                                           });
-                                      });
-                                    }
-                                  ).catch((err) => console.log(err));
+                                        };
 
-                                  // assignRoleNow.execute(message); // runs code from assignrole-now imported module
-                                  const completedPromptEmbed = new Discord.MessageEmbed()
-                                    .setColor("#4BB543")
-                                    .setTitle("Prompt Completed!")
-                                    .setDescription(
-                                      "Your data is now being tracked. Check out your roles in the server!"
-                                    )
-                                    .setThumbnail(
-                                      "https://i.imgur.com/pfXAuiY.png"
-                                    );
+                                        let savePlayerWinRoleRecord = (
+                                          query,
+                                          role,
+                                          log
+                                        ) => {
+                                          Player.findOneAndUpdate(
+                                            query,
+                                            {
+                                              $set: {
+                                                currentWinRole: role,
+                                              },
+                                            },
+                                            function callback(err) {
+                                              if (err) {
+                                                console.log(err);
+                                              }
+                                            }
+                                          ).then((doc) => {
+                                            log;
+                                            if (doc.currentWinRole == "TBD") {
+                                              // Player.deleteOne(
+                                              //   // if kd/win role fields don't update, delete the current user from db
+                                              //   { _id: player._id },
+                                              //   function (err) {
+                                              //     if (err) {
+                                              //       console.log(err);
+                                              //     }
+                                              //   }
+                                              // );
 
-                                  message.author.send(
-                                    completedPromptEmbed // completed prompt message
-                                  );
+                                              message.author.send(
+                                                "Your Win role field was not updated. Run `!trackme` in the main server to try again. If this keeps happening please contact `kal#1234` on Discord."
+                                              );
+                                            }
+                                          });
+                                        };
 
-                                  Player.findOneAndUpdate(
-                                    { discordID: player.discordID },
-                                    {
-                                      $set: {
-                                        inPrompt: false,
-                                        loggedIn: false,
-                                      },
-                                    },
-                                    function callback(err, doc) {
-                                      if (err) {
-                                        // Show errors
-                                        console.log(err);
+                                        Player.find(
+                                          { _id: player._id },
+                                          function (err, docs) {
+                                            console.log(err);
+
+                                            // Run through each record
+                                            docs.map((player) => {
+                                              API.MWBattleData(
+                                                gamertag,
+                                                platform
+                                              )
+                                                .then((warzoneData) => {
+                                                  let kd = warzoneData.br.kdRatio
+                                                    .toFixed(6)
+                                                    .slice(0, -4);
+                                                  let kills =
+                                                    warzoneData.br.kills;
+                                                  let wins =
+                                                    warzoneData.br.wins;
+                                                  // Display player record in console
+                                                  console.log(
+                                                    `Discord ID: ${player.discordID}\nGamertag: ${gamertag}\nPlatform: ${platform}\nKD: ${kd}\nKills: ${kills}\nWins: ${wins}`
+                                                  );
+
+                                                  // Access discord member data
+                                                  message.guild.members
+                                                    .fetch(player.discordID)
+                                                    .then((memberData) => {
+                                                      if (
+                                                        wins <=
+                                                        winRoles[0]["role_req"]
+                                                      ) {
+                                                        memberData.roles.add(
+                                                          getRole(
+                                                            winRoles[0][
+                                                              "role_name"
+                                                            ],
+                                                            message
+                                                          )
+                                                        );
+
+                                                        // Update player db record
+                                                        // savePlayerWinRoleRecord(
+                                                        //   // { _id: player._id },
+                                                        //   {
+                                                        //     discordID:
+                                                        //       player.discordID,
+                                                        //   },
+                                                        // winRoles[0][
+                                                        //   "role_name"
+                                                        // ],
+                                                        //   console.log(player)
+                                                        // );
+
+                                                        Player.findOneAndUpdate(
+                                                          { _id: player._id },
+                                                          {
+                                                            $set: {
+                                                              currentWinRole:
+                                                                winRoles[0][
+                                                                  "role_name"
+                                                                ],
+                                                            },
+                                                          },
+                                                          function callback(
+                                                            err
+                                                          ) {
+                                                            if (err) {
+                                                              console.log(err);
+                                                            }
+                                                          }
+                                                        ).then((doc) => {
+                                                          console.log(doc);
+                                                          if (
+                                                            doc.currentWinRole ==
+                                                            "TBD"
+                                                          ) {
+                                                            Player.deleteOne(
+                                                              // if win role field doesn't update, delete the current user from db
+                                                              {
+                                                                _id: player._id,
+                                                              },
+                                                              function (err) {
+                                                                if (err) {
+                                                                  console.log(
+                                                                    err
+                                                                  );
+                                                                }
+                                                              }
+                                                            );
+
+                                                            message.author.send(
+                                                              "Your Win role field was not updated. Run `!trackme` in the main server to try again. If this keeps happening please contact `kal#1234` on Discord."
+                                                            );
+                                                          }
+                                                        });
+                                                      } else if (
+                                                        wins >
+                                                          winRoles[0][
+                                                            "role_req"
+                                                          ] &&
+                                                        wins <=
+                                                          winRoles[1][
+                                                            "role_max_win"
+                                                          ]
+                                                      ) {
+                                                        memberData.roles.add(
+                                                          getRole(
+                                                            winRoles[1][
+                                                              "role_name"
+                                                            ],
+                                                            message
+                                                          )
+                                                        );
+                                                        // Update player db record
+                                                        // savePlayerWinRoleRecord(
+                                                        //   // { _id: player._id },
+                                                        //   {
+                                                        //     discordID:
+                                                        //       player.discordID,
+                                                        //   },
+                                                        // winRoles[1][
+                                                        //   "role_name"
+                                                        // ],
+                                                        //   console.log(player)
+                                                        // );
+
+                                                        Player.findOneAndUpdate(
+                                                          { _id: player._id },
+                                                          {
+                                                            $set: {
+                                                              currentWinRole:
+                                                                winRoles[1][
+                                                                  "role_name"
+                                                                ],
+                                                            },
+                                                          },
+                                                          function callback(
+                                                            err
+                                                          ) {
+                                                            if (err) {
+                                                              console.log(err);
+                                                            }
+                                                          }
+                                                        ).then((doc) => {
+                                                          console.log(doc);
+                                                          if (
+                                                            doc.currentWinRole ==
+                                                            "TBD"
+                                                          ) {
+                                                            Player.deleteOne(
+                                                              // if kd/win role fields don't update, delete the current user from db
+                                                              {
+                                                                _id: player._id,
+                                                              },
+                                                              function (err) {
+                                                                if (err) {
+                                                                  console.log(
+                                                                    err
+                                                                  );
+                                                                }
+                                                              }
+                                                            );
+
+                                                            message.author.send(
+                                                              "Your Win role field was not updated. Run `!trackme` in the main server to try again. If this keeps happening please contact `kal#1234` on Discord."
+                                                            );
+                                                          }
+                                                        });
+
+                                                        /**
+                                                         * 1. Add roles then
+                                                         * 2. Update player record on db
+                                                         */
+                                                      } else {
+                                                        for (
+                                                          let i = 1;
+                                                          i < winRoles.length;
+                                                          i++
+                                                        ) {
+                                                          // Identify current equivalent role of kd ratio
+                                                          if (
+                                                            wins >=
+                                                              winRoles[i][
+                                                                "role_min_win"
+                                                              ] &&
+                                                            wins <=
+                                                              winRoles[i][
+                                                                "role_max_win"
+                                                              ]
+                                                          ) {
+                                                            // If current role and new identified role is same, break loop by returning false
+                                                            if (
+                                                              player.currentWinRole ==
+                                                                winRoles[i][
+                                                                  "role_name"
+                                                                ] &&
+                                                              player.currentWinRole ==
+                                                                memberData._roles
+                                                            ) {
+                                                              return false;
+                                                            }
+
+                                                            // Remove role
+                                                            memberData.roles.remove(
+                                                              getRole(
+                                                                player.currentWinRole
+                                                              )
+                                                            );
+                                                            // Update player record on db
+                                                            // savePlayerWinRoleRecord(
+                                                            //   // { _id: player._id },
+                                                            //   {
+                                                            //     discordID:
+                                                            //       player.discordID,
+                                                            //   },
+                                                            //   winRoles[i][
+                                                            //     "role_name"
+                                                            //   ],
+                                                            //   console.log(
+                                                            //     player
+                                                            //   )
+                                                            // );
+
+                                                            Player.findOneAndUpdate(
+                                                              {
+                                                                _id: player._id,
+                                                              },
+                                                              {
+                                                                $set: {
+                                                                  currentWinRole:
+                                                                    winRoles[i][
+                                                                      "role_name"
+                                                                    ],
+                                                                },
+                                                              },
+                                                              function callback(
+                                                                err
+                                                              ) {
+                                                                if (err) {
+                                                                  console.log(
+                                                                    err
+                                                                  );
+                                                                }
+                                                              }
+                                                            ).then((doc) => {
+                                                              console.log(doc);
+                                                              if (
+                                                                doc.currentWinRole ==
+                                                                "TBD"
+                                                              ) {
+                                                                Player.deleteOne(
+                                                                  // if kd/win role fields don't update, delete the current user from db
+                                                                  {
+                                                                    _id:
+                                                                      player._id,
+                                                                  },
+                                                                  function (
+                                                                    err
+                                                                  ) {
+                                                                    if (err) {
+                                                                      console.log(
+                                                                        err
+                                                                      );
+                                                                    }
+                                                                  }
+                                                                );
+
+                                                                message.author.send(
+                                                                  "Your Win role field was not updated. Run `!trackme` in the main server to try again. If this keeps happening please contact `kal#1234` on Discord."
+                                                                );
+                                                              }
+                                                            });
+
+                                                            // Apply new role
+                                                            memberData.roles.add(
+                                                              getRole(
+                                                                winRoles[i][
+                                                                  "role_name"
+                                                                ]
+                                                              )
+                                                            );
+                                                            break;
+                                                          }
+                                                        }
+                                                      }
+
+                                                      if (
+                                                        kills <=
+                                                        kdRoles[0][
+                                                          "role_reqKills"
+                                                        ]
+                                                      ) {
+                                                        // Add role
+                                                        memberData.roles.add(
+                                                          getRole(
+                                                            kdRoles[0][
+                                                              "role_name"
+                                                            ],
+                                                            message
+                                                          )
+                                                        );
+
+                                                        // Update player db record
+                                                        // savePlayerKDRoleRecord(
+                                                        //   // { _id: player._id },
+                                                        //   {
+                                                        //     discordID:
+                                                        //       player.discordID,
+                                                        //   },
+                                                        //   kdRoles[0][
+                                                        //     "role_name"
+                                                        //   ],
+                                                        //   console.log(player)
+                                                        // );
+
+                                                        Player.findOneAndUpdate(
+                                                          { _id: player._id },
+                                                          {
+                                                            $set: {
+                                                              currentKDRole:
+                                                                kdRoles[0][
+                                                                  "role_name"
+                                                                ],
+                                                            },
+                                                          },
+                                                          function callback(
+                                                            err
+                                                          ) {
+                                                            if (err) {
+                                                              console.log(err);
+                                                            }
+                                                          }
+                                                        ).then((doc) => {
+                                                          console.log(doc);
+                                                          if (
+                                                            doc.currentKDRole ==
+                                                            "TBD"
+                                                          ) {
+                                                            Player.deleteOne(
+                                                              // if kdr role field doesn't update, delete the current user from db
+                                                              {
+                                                                _id: player._id,
+                                                              },
+                                                              function (err) {
+                                                                if (err) {
+                                                                  console.log(
+                                                                    err
+                                                                  );
+                                                                }
+                                                              }
+                                                            );
+
+                                                            message.author.send(
+                                                              "Your KDR role field was not updated. Run `!trackme` in the main server to try again. If this keeps happening please contact `kal#1234` on Discord."
+                                                            );
+                                                          }
+                                                        });
+
+                                                        /**
+                                                         * 1. Add roles then
+                                                         * 2. Update player record on db
+                                                         */
+                                                      } else {
+                                                        for (
+                                                          let i = 1;
+                                                          i < kdRoles.length;
+                                                          i++
+                                                        ) {
+                                                          // Identify current equivalent role of kd ratio
+                                                          if (
+                                                            kd >=
+                                                              kdRoles[i][
+                                                                "role_min_kd"
+                                                              ] &&
+                                                            kd <=
+                                                              kdRoles[i][
+                                                                "role_max_kd"
+                                                              ]
+                                                          ) {
+                                                            // If current role and new identified role is same, break loop by returning false
+                                                            if (
+                                                              player.currentKDRole ==
+                                                                kdRoles[i][
+                                                                  "role_name"
+                                                                ] &&
+                                                              player.currentKDRole ==
+                                                                memberData._roles
+                                                            ) {
+                                                              return false;
+                                                            }
+
+                                                            // Remove role
+                                                            memberData.roles.remove(
+                                                              getRole(
+                                                                player.currentKDRole
+                                                              )
+                                                            );
+
+                                                            // Update player record on db
+                                                            // savePlayerKDRoleRecord(
+                                                            //   // { _id: player._id },
+                                                            //   {
+                                                            //     discordID:
+                                                            //       player.discordID,
+                                                            //   },
+                                                            // kdRoles[i][
+                                                            //   "role_name"
+                                                            // ],
+                                                            //   console.log(
+                                                            //     player
+                                                            //   )
+                                                            // );
+
+                                                            Player.findOneAndUpdate(
+                                                              {
+                                                                _id: player._id,
+                                                              },
+                                                              {
+                                                                $set: {
+                                                                  currentKDRole:
+                                                                    kdRoles[i][
+                                                                      "role_name"
+                                                                    ],
+                                                                },
+                                                              },
+                                                              function callback(
+                                                                err
+                                                              ) {
+                                                                if (err) {
+                                                                  console.log(
+                                                                    err
+                                                                  );
+                                                                }
+                                                              }
+                                                            ).then((doc) => {
+                                                              console.log(doc);
+                                                              if (
+                                                                doc.currentKDRole ==
+                                                                "TBD"
+                                                              ) {
+                                                                Player.deleteOne(
+                                                                  // if kdr role field doesn't update, delete the current user from db
+                                                                  {
+                                                                    _id:
+                                                                      player._id,
+                                                                  },
+                                                                  function (
+                                                                    err
+                                                                  ) {
+                                                                    if (err) {
+                                                                      console.log(
+                                                                        err
+                                                                      );
+                                                                    }
+                                                                  }
+                                                                );
+
+                                                                message.author.send(
+                                                                  "Your KDR role field was not updated. Run `!trackme` in the main server to try again. If this keeps happening please contact `kal#1234` on Discord."
+                                                                );
+                                                              }
+                                                            });
+
+                                                            // Apply new role
+                                                            memberData.roles.add(
+                                                              getRole(
+                                                                kdRoles[i][
+                                                                  "role_name"
+                                                                ]
+                                                              )
+                                                            );
+                                                            break;
+                                                          }
+                                                        }
+                                                      }
+                                                    });
+                                                })
+                                                .catch((err) => {
+                                                  const roleAssignmentError = new Discord.MessageEmbed()
+                                                    .setColor("#FF0000")
+                                                    .setTitle(err)
+                                                    .setDescription(
+                                                      "Please contact an administrator."
+                                                    )
+                                                    .setThumbnail(
+                                                      "https://i.imgur.com/I6hxLXI.png"
+                                                    );
+                                                  // Add for display error message on API
+                                                  if (err != undefined) {
+                                                    console.log(
+                                                      "API error:",
+                                                      err
+                                                    );
+                                                    message.author.send(
+                                                      roleAssignmentError
+                                                    );
+                                                  }
+                                                });
+                                            });
+                                          }
+                                        ).catch((err) => console.log(err));
+                                        const completedPromptEmbed = new Discord.MessageEmbed()
+                                          .setColor("#4BB543")
+                                          .setTitle("Prompt Completed!")
+                                          .setDescription(
+                                            "Your data is now being tracked. Check out your roles in the server!"
+                                          )
+                                          .setThumbnail(
+                                            "https://i.imgur.com/pfXAuiY.png"
+                                          );
+
+                                        message.author.send(
+                                          completedPromptEmbed // completed prompt message
+                                        );
                                       }
                                     }
                                   );
-
-                                  // setFalse(
-                                  //   {
-                                  //     _id: {
-                                  //       $eq: data._id,
-                                  //     },
-                                  //   },
-                                  //   false,
-                                  //   false
-                                  // );
                                 } else {
                                   const tagPlatformErrorEmbed = new Discord.MessageEmbed()
                                     .setColor("#FF0000")
@@ -772,23 +1044,6 @@ module.exports = {
                               // runs if user does not enter credentials when prompted to enter gamertag and platform
                               inputTrackErrorEmbed
                             );
-
-                            // if the user runs out of time, set inPrompt/loggedIn to false
-                            Player.findOneAndUpdate(
-                              { discordID: player.discordID },
-                              {
-                                $set: {
-                                  inPrompt: false,
-                                  loggedIn: false,
-                                },
-                              },
-                              function callback(err, doc) {
-                                if (err) {
-                                  // Show errors
-                                  console.log(err);
-                                }
-                              }
-                            );
                           });
                       });
                     })
@@ -834,7 +1089,6 @@ module.exports = {
                         },
                         function callback(err) {
                           if (err) {
-                            // Show errors
                             console.log(err);
                           }
                         }
